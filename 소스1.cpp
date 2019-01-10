@@ -452,13 +452,9 @@ float ReadBlockMasking(int x, int y, int n1, float **fnH, int** img) {
 	
 	for (int dy = -z; dy <= z; dy++) {//3: -1~1 , 5:-2~2
 		for (int dx = -z; dx <= z; dx++) {
-
-			if (y + dy >= 0 && x + dy >= 0) {
-				if (y == 0 && x == 0) {
-				}
-				else
+			
 					sum += img[y+dy][x+dx] * fnH[dy+z][dx+z];
-			}
+
 		}
 	}
 	  
@@ -467,17 +463,22 @@ float ReadBlockMasking(int x, int y, int n1, float **fnH, int** img) {
 
 
 
-void masking(int **img, int **img_out, int height, int width,int n) {
-	float **fnH = FloatAlloc2(n, n);
+void masking1(int **img, int **img_out, int height, int width,int n) { // 가로 -1 -1 -1 ;gy 성분
+	float **fnH1 = FloatAlloc2(n, n);
 
-
+	int a = -1;
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			fnH[i][j] = (float)1 / (n*n);
+			fnH1[j][i] = a++;
 		}
+		a = -1;
 	}
 
-	float sum = 0.0;
+	
+
+
+	float sum1 = 0.0;
+	float sum2 = 0.0;
 
 	
 	for (int y = 0; y < height - ((n - 1) / 2); y++) {
@@ -485,35 +486,171 @@ void masking(int **img, int **img_out, int height, int width,int n) {
 			if (x - (n - 1) < 0 || y - (n - 1) < 0 || x + (n - 1) > width - 1 || y + (n - 1) > height - 1)
 				img_out[y][x] = img[y][x];
 			else {
-				sum = ReadBlockMasking(x, y, n, fnH, img);
-				img_out[y][x]= (int)sum;
+				sum1 = ReadBlockMasking(x, y, n, fnH1, img);
+				
+				//img_out[y][x]= fabs((int)sum1);
+				img_out[y][x] = ((int)sum1);
+			}
+		}
+	}
+}
+void masking2(int **img, int **img_out, int height, int width, int n) { // 가로 -1 0 1 ;  gx성분
+	float **fnH1 = FloatAlloc2(n, n);
+
+	int a = -1;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			fnH1[i][j] = a++;
+		}
+		a = -1;
+	}
+	/*
+	for (int i = 0; i < n; i++) {
+	for (int j = 0; j < n; j++) {
+	printf("%f ", fnH1[i][j]);
+	}
+	printf("\n");
+	*/
+	
+	float sum1 = 0.0;
+
+	for (int y = 0; y < height - ((n - 1) / 2); y++) {
+		for (int x = 0; x < width - ((n - 1) / 2); x++) {//256-4
+			if (x - (n - 1) < 0 || y - (n - 1) < 0 || x + (n - 1) > width - 1 || y + (n - 1) > height - 1)
+				img_out[y][x] = img[y][x];
+			else {
+				sum1 = ReadBlockMasking(x, y, n, fnH1, img);
+			
+				//img_out[y][x] = fabs((int)sum1);
+				img_out[y][x] = ((int)sum1);
 			}
 
 		}
 	}
-	//("test1", img_out, width, height);
-	//ImageShow("test", img, width, height);
-
 }
 
 
 //low-pass filter:변화가 많은걸 지움-> 사진이 뭉개짐
 //high:변화가 적은걸 지움->
-void main() { //합성곱, h:n*n block에 1/3, -> h랑 img block이랑 각 인덱스끼리 곱함->"Masking"
+void prob1009() { //합성곱, h:n*n block에 1/3, -> h랑 img block이랑 각 인덱스끼리 곱함->"Masking"
 	int width, height;
 	int **img = ReadImage("LENA256_salt(noise_add).bmp", &width, &height);
 	int **img_out1 = IntAlloc2(width, height);
 	int **img_out2= IntAlloc2(width, height);
 
-	masking(img, img_out1, height, width, 3);
+	//masking(img, img_out1, height, width, 3);
+	
 	meanFiltering(img, img_out2, width, height, 3);
 	ImageShow("test", img, width, height);
-	ImageShow("test1", img_out1, width, height);
+	ImageShow("test1", img_out1, width, height);//masking
 	ImageShow("test2", img_out2, width, height);
 
 }
 
+int FindMax(int **img, int height, int width) {
+	int max = 0;
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			max = IMAX(img[y][x], max);
+		}
+	}
+	return max;
+}
 
+void Scaling(float alpha, int **img_out, int height, int width)
+{
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			img_out[y][x] = alpha*img_out[y][x];//최댓값->255, 0->0
+		}
+	}
+}
+
+
+void prob1017()
+{
+	int width, height;
+	int **img = ReadImage("lena512_gaussian.bmp", &width, &height);
+	int **img_out1 = IntAlloc2(width, height);
+	int **img_out2 = IntAlloc2(width, height);
+	int **img_out3 = IntAlloc2(width, height);
+
+	// 필터링하는 프로그램/함수
+	masking1(img, img_out1, height, width, 3);
+	masking2(img, img_out2, height, width, 3);
+
+	int maxvalue1 = FindMax(img_out1, height, width);
+	int maxvalue2 = FindMax(img_out2, height, width);
+
+	float alpha1 = 255.0 / maxvalue1;
+	float alpha2 = 255.0 / maxvalue2;
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			img_out3[y][x] = img_out1[y][x]+ img_out2[y][x];
+			//img_out3[y][x] = IMAX(IMIN(img_out3[y][x], 255), 0);
+		}
+	}
+	int maxvalue3 = FindMax(img_out3, height, width);
+	float alpha3 = 255.0 / maxvalue3;
+
+	Scaling(alpha3, img_out3, height, width);
+	Scaling(alpha1, img_out1, height, width);
+	Scaling(alpha2, img_out2, height, width);
+
+	ImageShow("test", img, width, height);
+	ImageShow("test1", img_out1, width, height);
+	ImageShow("test2", img_out2, width, height);
+	ImageShow("test3", img_out3, width, height);
+}
+
+void FindEdgeAngle(int width,int height,int **img,int **img_out){
+	
+	float **theta = FloatAlloc2(width, height);
+	int **gy = IntAlloc2(width, height);
+	int **gx = IntAlloc2(width, height);
+
+	masking1(img, gy, height, width, 3);//gy
+	masking2(img, gx, height, width, 3);
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			theta[y][x] = atan2((double)gy[y][x], gx[y][x]);
+
+		}
+	}
+	//기울기: 255/(PI*2)
+	float gradient = 255 / (PI * 2);
+
+	for (int y = 0; y < height; y++)//직선에 대입
+	{
+		for (int x = 0; x < width; x++)
+		{
+			img_out[y][x] = (int) (gradient *(theta[y][x]+PI));
+		}
+	}
+
+	ImageShow("test", img, width, height);
+	ImageShow("test1", img_out, width, height);
+
+}
+//int **gx,int **gy,float **theta,
+void main() {
+	int width, height;
+	int **img = ReadImage("lena512_gaussian.bmp", &width, &height);
+	
+	int **img_out = IntAlloc2(width, height);
+
+	FindEdgeAngle(width, height, img, img_out);
+}
 
 //0~ 258 :  밝기 사이즈
 /*
