@@ -167,28 +167,28 @@ void Prob0904() {
 	IntFree2(img, height, width);
 }
 
-void Rectanguler(int **img, int width, int height,int delta) {
-	
-	for (int y = 192; y < 576;y++) {
-		for (int x = 256;x < 768;x++) {
+void Rectanguler(int **img, int width, int height, int delta) {
+
+	for (int y = 192; y < 576; y++) {
+		for (int x = 256; x < 768; x++) {
 			img[y][x] = img[y][x] + delta;
 			img[y][x] = IMAX(IMIN(img[y][x], 255), 0);
 		}
 	}
 }
 //255보다 커지면 0부터 커짐 ->범위제한
-void Circle(int **img, int width, int height,int delta,int a,int b) { //밝기: 0~255 ->음수가 나오면 8비트->엄청 밝게 나옴
-	//delta = (delta > 0) ? delta : 0;
-	//delta = (delta > 255) ? 255 : delta;
-	for (int y = 0;y < width;y++) {
-		for (int x = 0;x < height;x++) {
+void Circle(int **img, int width, int height, int delta, int a, int b) { //밝기: 0~255 ->음수가 나오면 8비트->엄청 밝게 나옴
+																		 //delta = (delta > 0) ? delta : 0;
+																		 //delta = (delta > 255) ? 255 : delta;
+	for (int y = 0; y < width; y++) {
+		for (int x = 0; x < height; x++) {
 			if ((x - a)*(x - a) + (y - b)*(y - b) < 1000) {
 				//img[y][x] = (img[y][x] + delta > 255) ?  255 : img[y][x] + delta;
 				img[y][x] = img[y][x] + delta;
 				img[y][x] = IMAX(IMIN(img[y][x], 255), 0);
 
 			}
-				
+
 		}
 	}
 }
@@ -199,10 +199,10 @@ void Prob0911() {
 	int **img = ReadImage("Penguins.jpg", &width, &height);
 
 	//y: 이미지의 세로 -x랑 y바꾸면 엄청 느려짐 ->  x방향 먼저 읽는게 빠르다.
-	
+
 	//Rectanguler(img, width, height,50);
-	Circle(img, width, height,50,300,300);
-	
+	Circle(img, width, height, 50, 300, 300);
+
 	ImageShow("test", img, width, height);
 
 
@@ -211,9 +211,9 @@ void Prob0911() {
 
 }
 
-void PixelCount(int **img,int* histogram) {//int histogram[] 과 같다
+void PixelCount(int **img, int* histogram) {//int histogram[] 과 같다
 
-	//int histogram[256] = { 0 };//이미지 안에 각 밝기가 몇개씩인지 
+											//int histogram[256] = { 0 };//이미지 안에 각 밝기가 몇개씩인지 
 	for (int y = 0; y < 768; y++) {
 		for (int x = 0; x < 1024; x++) {
 			histogram[img[y][x]]++;
@@ -221,7 +221,7 @@ void PixelCount(int **img,int* histogram) {//int histogram[] 과 같다
 	}
 	/*
 	for (int i = 0; i < 256; i++)
-		printf("%d \n", histogram[i]);
+	printf("%d \n", histogram[i]);
 	printf("%d, %d", *histogram, *(histogram + 1));
 	*/
 	/*
@@ -236,7 +236,7 @@ void prob0911() {
 	int width, height;
 	int **img = ReadImage("Penguins.jpg", &width, &height);
 	int histogram[256] = { 0 };
-	PixelCount(img,histogram);
+	PixelCount(img, histogram);
 }
 
 
@@ -263,18 +263,47 @@ void mappintImage(int **img, int** img_out, int width, int height, int* histogra
 	}
 }
 
-void main() {
+void prob0912() {
 	int width, height;
 	int **img = ReadImage("tulip_dark.bmp", &width, &height);
-	int **img_out=IntAlloc2(width,height);
+	int **img_out = IntAlloc2(width, height);
 	int histogram[256] = { 0 };
 
 	mappintImage(img, img_out, width, height, histogram);
 
 	ImageShow("test", img_out, width, height);
 
-	
 
+
+}
+#define f(m,x,a,fa) m*(x-a)+fa 
+void stretching(int a, int b, int fa, int fb, int** img, int** img_out, int width, int height) {
+
+	int m = ((float)fb - fa) / (b - a);
+
+
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			img_out[y][x] = f(m, img[y][x], a, fa);
+			img_out[y][x] = IMAX(IMIN(img_out[y][x], 255), 0);
+		}
+	}
+	ImageShow("test", img_out, width, height);
+
+}
+
+
+
+
+void main() {
+	int width, height;
+	int **img = ReadImage("Penguins.jpg", &width, &height);
+	int **img_out = IntAlloc2(width, height);
+	int histogram[256] = { 0 };
+
+	stretching(70, 150,100 , 200, img, img_out, width, height);
+	ImageShow("test1", img, width, height);
 }
 //0~ 258 :  밝기 사이즈
 /*
