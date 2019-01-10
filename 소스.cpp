@@ -1,7 +1,8 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
+#include<time.h>
 
 #include <opencv2/opencv.hpp>   
 #include <opencv2/core/core.hpp>   
@@ -10,7 +11,7 @@
 using namespace cv;
 
 #define PI 3.14159265359
-#define SQ(x) ((x)*(x))//SQ°¡ (x*x)¸é -3 ³ª¿È: 1-2°¡ °í´ë·Î µé¾î°¡´Ï²²
+#define SQ(x) ((x)*(x))//SQê°€ (x*x)ë©´ -3 ë‚˜ì˜´: 1-2ê°€ ê³ ëŒ€ë¡œ ë“¤ì–´ê°€ë‹ˆê»˜
 #define IMIN(x,y) ((x>y)?y:x)
 #define IMAX(x,y) ((x<y)?y:x)
 
@@ -23,14 +24,14 @@ int** IntAlloc2(int width, int height)
 {
 	int** tmp;
 	tmp = (int**)calloc(height, sizeof(int*));
-	for (int i = 0; i<height; i++)
+	for (int i = 0; i < height; i++)
 		tmp[i] = (int*)calloc(width, sizeof(int));
 	return(tmp);
 }
 
 void IntFree2(int** image, int width, int height)
 {
-	for (int i = 0; i<height; i++)
+	for (int i = 0; i < height; i++)
 		free(image[i]);
 
 	free(image);
@@ -40,20 +41,20 @@ int_rgb** IntColorAlloc2(int width, int height)
 {
 	int_rgb** tmp;
 	tmp = (int_rgb**)calloc(height, sizeof(int_rgb*));
-	for (int i = 0; i<height; i++)
+	for (int i = 0; i < height; i++)
 		tmp[i] = (int_rgb*)calloc(width, sizeof(int_rgb));
 	return(tmp);
 }
 
 void IntColorFree2(int_rgb** image, int width, int height)
 {
-	for (int i = 0; i<height; i++)
+	for (int i = 0; i < height; i++)
 		free(image[i]);
 
 	free(image);
 }
 
-int** ReadImage(char* name, int* width, int* height)
+int** ReadImage(const char* name, int* width, int* height)
 {
 	Mat img = imread(name, IMREAD_GRAYSCALE);
 	int** image = (int**)IntAlloc2(img.cols, img.rows);
@@ -61,8 +62,8 @@ int** ReadImage(char* name, int* width, int* height)
 	*width = img.cols;
 	*height = img.rows;
 
-	for (int i = 0; i<img.rows; i++)
-		for (int j = 0; j<img.cols; j++)
+	for (int i = 0; i < img.rows; i++)
+		for (int j = 0; j < img.cols; j++)
 			image[i][j] = img.at<unsigned char>(i, j);
 
 	return(image);
@@ -71,19 +72,19 @@ int** ReadImage(char* name, int* width, int* height)
 void WriteImage(char* name, int** image, int width, int height)
 {
 	Mat img(height, width, CV_8UC1);
-	for (int i = 0; i<height; i++)
-		for (int j = 0; j<width; j++)
+	for (int i = 0; i < height; i++)
+		for (int j = 0; j < width; j++)
 			img.at<unsigned char>(i, j) = (unsigned char)image[i][j];
 
 	imwrite(name, img);
 }
 
 
-void ImageShow(char* winname, int** image, int width, int height)
+void ImageShow(const char* winname, int** image, int width, int height)
 {
 	Mat img(height, width, CV_8UC1);
-	for (int i = 0; i<height; i++)
-		for (int j = 0; j<width; j++)
+	for (int i = 0; i < height; i++)
+		for (int j = 0; j < width; j++)
 			img.at<unsigned char>(i, j) = (unsigned char)image[i][j];
 	imshow(winname, img);
 	waitKey(0);
@@ -91,15 +92,15 @@ void ImageShow(char* winname, int** image, int width, int height)
 
 
 
-int_rgb** ReadColorImage(char* name, int* width, int* height)
+int_rgb** ReadColorImage(const char* name, int* width, int* height)
 {
 	Mat img = imread(name, IMREAD_COLOR);
 	int_rgb** image = (int_rgb**)IntColorAlloc2(img.cols, img.rows);
-	
+
 	*width = img.cols;
 	*height = img.rows;
 
-	for (int i = 0; i<img.rows; i++)
+	for (int i = 0; i < img.rows; i++)
 		for (int j = 0; j < img.cols; j++) {
 			image[i][j].b = img.at<Vec3b>(i, j)[0];
 			image[i][j].g = img.at<Vec3b>(i, j)[1];
@@ -112,7 +113,7 @@ int_rgb** ReadColorImage(char* name, int* width, int* height)
 void WriteColorImage(char* name, int_rgb** image, int width, int height)
 {
 	Mat img(height, width, CV_8UC3);
-	for (int i = 0; i<height; i++)
+	for (int i = 0; i < height; i++)
 		for (int j = 0; j < width; j++) {
 			img.at<Vec3b>(i, j)[0] = (unsigned char)image[i][j].b;
 			img.at<Vec3b>(i, j)[1] = (unsigned char)image[i][j].g;
@@ -122,11 +123,11 @@ void WriteColorImage(char* name, int_rgb** image, int width, int height)
 	imwrite(name, img);
 }
 
-void ColorImageShow(char* winname, int_rgb** image, int width, int height)
+void ColorImageShow(const char* winname, int_rgb** image, int width, int height)
 {
 	Mat img(height, width, CV_8UC3);
-	for (int i = 0; i<height; i++)
-		for (int j = 0; j<width; j++) {
+	for (int i = 0; i < height; i++)
+		for (int j = 0; j < width; j++) {
 			img.at<Vec3b>(i, j)[0] = (unsigned char)image[i][j].b;
 			img.at<Vec3b>(i, j)[1] = (unsigned char)image[i][j].g;
 			img.at<Vec3b>(i, j)[2] = (unsigned char)image[i][j].r;
@@ -147,7 +148,7 @@ void ConnectedComponentLabeling(_TP** seg, int width, int height, int** label, i
 			bw.at<unsigned char>(i, j) = (unsigned char)seg[i][j];
 	}
 	Mat labelImage(bw.size(), CV_32S);
-	*no_label = connectedComponents(bw, labelImage, 8); // 0±îÁö Æ÷ÇÔµÈ °¹¼öÀÓ
+	*no_label = connectedComponents(bw, labelImage, 8); // 0ê¹Œì§€ í¬í•¨ëœ ê°¯ìˆ˜ì„
 
 	(*no_label)--;
 
@@ -157,1606 +158,433 @@ void ConnectedComponentLabeling(_TP** seg, int width, int height, int** label, i
 	}
 }
 
-void Prob0904() {
-	int width, height;
-	int **img;//2Â÷¿ø ¹è¿­ÀÇ À§Ä¡¸¦ ÀúÀåÇÏ´Â º¯¼ö
 
-	img = ReadImage("Penguins.jpg", &height, &width);
-	ImageShow("test", img, height, width);
 
-	IntFree2(img, height, width);
-}
-
-void Rectanguler(int **img, int width, int height, int delta) {
-
-	for (int y = 192; y < 576; y++) {
-		for (int x = 256; x < 768; x++) {
-			img[y][x] = img[y][x] + delta;
-			img[y][x] = IMAX(IMIN(img[y][x], 255), 0);
-		}
-	}
-}
-//255º¸´Ù Ä¿Áö¸é 0ºÎÅÍ Ä¿Áü ->¹üÀ§Á¦ÇÑ
-void Circle(int **img, int width, int height, int delta, int a, int b) { //¹à±â: 0~255 ->À½¼ö°¡ ³ª¿À¸é 8ºñÆ®->¾öÃ» ¹à°Ô ³ª¿È
-																		 //delta = (delta > 0) ? delta : 0;
-																		 //delta = (delta > 255) ? 255 : delta;
-	for (int y = 0; y < width; y++) {
-		for (int x = 0; x < height; x++) {
-			if ((x - a)*(x - a) + (y - b)*(y - b) < 1000) {
-				//img[y][x] = (img[y][x] + delta > 255) ?  255 : img[y][x] + delta;
-				img[y][x] = img[y][x] + delta;
-				img[y][x] = IMAX(IMIN(img[y][x], 255), 0);
-
-			}
-
-		}
-	}
-}
-
-void Prob0911() {
-	//Prob0904();
-	int width, height;
-	int **img = ReadImage("Penguins.jpg", &width, &height);
-
-	//y: ÀÌ¹ÌÁöÀÇ ¼¼·Î -x¶û y¹Ù²Ù¸é ¾öÃ» ´À·ÁÁü ->  x¹æÇâ ¸ÕÀú ÀĞ´Â°Ô ºü¸£´Ù.
-
-	//Rectanguler(img, width, height,50);
-	Circle(img, width, height, 50, 300, 300);
-
-	ImageShow("test", img, width, height);
-
-
-
-	IntFree2(img, height, width);
-
-}
-
-void PixelCount(int **img, int* histogram) {//int histogram[] °ú °°´Ù
-
-											//int histogram[256] = { 0 };//ÀÌ¹ÌÁö ¾È¿¡ °¢ ¹à±â°¡ ¸î°³¾¿ÀÎÁö 
-	for (int y = 0; y < 768; y++) {
-		for (int x = 0; x < 1024; x++) {
-			histogram[img[y][x]]++;
-		}
-	}
-	/*
-	for (int i = 0; i < 256; i++)
-	printf("%d \n", histogram[i]);
-	printf("%d, %d", *histogram, *(histogram + 1));
-	*/
-	/*
-	int* address;
-	address = histogram + 2;
-	printf("\n %d %d", address - 1, address[-1]);// µÈ´Ù
-	printf("\n %d %d", *(histogram-1), histogram[-1]);//¾ÈµÈ´Ù
-	*/
-}
-
-void prob0911() {
-	int width, height;
-	int **img = ReadImage("Penguins.jpg", &width, &height);
-	int histogram[256] = { 0 };
-	PixelCount(img, histogram);
-}
-
-
-void mappintImage(int **img, int** img_out, int width, int height, int* histogram) {
-
-	PixelCount(img, histogram);
-
-	float pdf[256], cdf[256];
-
-
-	pdf[0] = (float)histogram[0] / (width*height);
-	cdf[0] = pdf[0];
-	for (int i = 1; i < 256; i++) {
-		pdf[i] = (float)histogram[i] / (width*height);
-		cdf[i] = (float)cdf[i - 1] + pdf[i];
-	}
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			img_out[y][x] = (int)(cdf[img[y][x]] * 255);
-			img_out[y][x] = IMAX(IMIN(img_out[y][x], 255), 0);
-			//printf("%d \n",img_out[y][x]);
-		}
-	}
-}
-
-void prob0912() {
-	int width, height;
-	int **img = ReadImage("tulip_dark.bmp", &width, &height);
-	int **img_out = IntAlloc2(width, height);
-	int histogram[256] = { 0 };
-
-	mappintImage(img, img_out, width, height, histogram);
-
-	ImageShow("test", img_out, width, height);
-
-
-
-}
-#define f(m,x,a,fa) m*(x-a)+fa 
-void stretching(int a, int b, int fa, int fb, int** img, int** img_out, int width, int height) {
-
-	int m = ((float)fb - fa) / (b - a);
-
-
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			img_out[y][x] = f(m, img[y][x], a, fa);
-			img_out[y][x] = IMAX(IMIN(img_out[y][x], 255), 0);
-		}
-	}
-	ImageShow("test", img_out, width, height);
-
-}
-
-void prob0919() {
-	int width, height;
-	int **img = ReadImage("Penguins.jpg", &width, &height);
-	int **img_out = IntAlloc2(width, height);
-	int histogram[256] = { 0 };
-
-	stretching(70, 150,100 , 200, img, img_out, width, height);
-	ImageShow("test1", img, width, height);
-}
-/*
-void meanFiltering(int **img,int** img_out,int width,int height) {//°¡ÀåÀÚ¸® 9°³ ´õÇØ¼­ Æò±Õ
-	int sum = 0;
-	for (int y = 0; y < height-1; y++) {
-		for (int x = 0; x < width-1; x++) {
-			if (y == 0 || x == 0) {
-				img_out[y][x] = img[y][x];
-			}
-			else{
-			sum = img[y - 1][x - 1] + img[y-1][x] + img[y - 1][x + 1]+ img[y][x - 1] + img[y][x + 1] + img[y + 1][x - 1] + img[y + 1][x] + img[y + 1][x + 1];
-			img_out[y][x] = sum / 9;
-			img_out[y][x] = IMAX(IMIN(img_out[y][x], 255), 0);
-			}
-
-
-		}
-	}
-	ImageShow("test1", img_out, width, height);
-	ImageShow("test", img, width, height);
-
-}
-*/
-void meanFiltering(int **img, int** img_out, int width, int height,int n) {//nxn
-	int sum = 0;
-	int z = n - 2;//3:1 , 5:2
-	for (int y = z; y < height-z ; y++) {//3: 1~254
-		for (int x =z; x < width-z ; x++) {
-
-			for (int dy = -z; dy < (z + 1); dy++) {//3: -1~1 , 5:-2~2
-				for (int dx = -z; dx < (z + 1); dx++) {
-					if (y == 0 && x == 0) {
-					}
-					else sum += img[y + dy][x + dx];
-				}
-			}
-			
-			img_out[y][x] = sum / (n*n) + 0.5;
-			img_out[y][x] = IMAX(IMIN(img_out[y][x], 255), 0);
-			sum = 0;
-
-		}
-	}
-	ImageShow("test1", img_out, width, height);
-	ImageShow("test", img, width, height);
-
-}
-
-
-void ReadBlock(int x, int y, int n1, int n2, int *block,int** img) {
-	int index = 0;
-	int z = n1 - 2;
-	
-
-
-	for (int dy = -z; dy < (z + 1); dy++) {//3: -1~1 , 5:-2~2
-		for (int dx = -z; dx < (z + 1); dx++) {
-			if(y+dy>=0 && x+dx>=0){
-				if (y == 0 && x == 0) {
-				}
-				else block[index++] = img[y+dy][x+dx];
-			}
-		}
-	}
-}
-
-int Sorting(int *block, int n) {//¹öºíÁ¤·Ä
-	int temp = 0;
-	for (int i = 0; i < n ; i++)
-	{
-		for (int j = 0; j < n - i; j++)
-		{
-			if (block[j] < block[j + 1])
-			{
-				temp = block[j];
-				block[j] = block[j + 1];
-				block[j + 1] = temp;
-			}
-		}
-	}
-	return block[n / 2];
-}
-
-void medianFilterNXN(int width, int height, int n1 ,int** img, int** img_out) {
-
-	//meanFiltering(img, img_out, width, height,5);
-	int i = 0;
-	int* block = (int*)malloc(n1 * n1* sizeof(int));
-	for (int y = 0; y < height - ((n1-1)/ 2); y++) {
-		for (int x = 0; x < width - ((n1 - 1) / 2); x++) {//256-4
-			if (x - (n1 - 1) < 0 || y - (n1 - 1) < 0 || x + (n1 - 1) > width - 1 || y + (n1 - 1) > height - 1)
-				img_out[y][x] = img[y][x];
-			else {
-				ReadBlock(x, y, n1, n1, block, img);// °ªÀ» ÀĞ¾î¿Í¼­  block¹è¿­¿¡ ÀúÀå
-													//printf("%d %d\n", x, y);
-				img_out[y][x] = Sorting(block, n1*n1);//Áß°£°ª Ã£¾Æ¼­ return °ªÀ» block [4]·Î
-			}
-
-		}
-	}
-
-	ImageShow("test1", img_out, width, height);
-	ImageShow("test", img, width, height);
-
-
-}
-
-
-void prob1004() {
-	int width, height;
-	int **img = ReadImage("LENA256_salt(noise_add).bmp", &width, &height);
-	int **img_out = IntAlloc2(width, height);
-
-	//meanFiltering(img, img_out, width, height,5);
-	medianFilterNXN(width,height,11,img,img_out);
-
-	
-}
-
-
-float** FloatAlloc2(int height, int width)
-
-{
-	float** tmp;  tmp = (float**)calloc(height, sizeof(float*));
-
-	for (int i = 0; i<height; i++)
-
-		tmp[i] = (float*)calloc(width, sizeof(float));
-
-	return(tmp);
-
-}
-
-void FloatFree2(float** image, int height, int width)
-
-{
-
-	for (int i = 0; i<height; i++)
-
-		free(image[i]);
-
-	free(image);
-
-}
-float ReadBlockMasking(int x, int y, int n1, float **fnH, int** img) {
-	int index = 0;
-	int z = (n1 - 1)/2;
-	float sum = 0.0;
-
-	
-	for (int dy = -z; dy <= z; dy++) {//3: -1~1 , 5:-2~2
-		for (int dx = -z; dx <= z; dx++) {
-			
-					sum += img[y+dy][x+dx] * fnH[dy+z][dx+z];
-
-		}
-	}
-	  
-	return sum;
-}
-
-
-
-void masking1(int **img, int **img_out, int height, int width,int n) { // °¡·Î -1 -1 -1 ;gy ¼ººĞ
-	float **fnH1 = FloatAlloc2(n, n);
-
-	int a = -1;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			fnH1[j][i] = a++;
-		}
-		a = -1;
-	}
-
-	float sum1 = 0.0;
-	float sum2 = 0.0;
-	
-	for (int y = 0; y < height - ((n - 1) / 2); y++) {
-		for (int x = 0; x < width - ((n - 1) / 2); x++) {//256-4
-			if (x - (n - 1) < 0 || y - (n - 1) < 0 || x + (n - 1) > width - 1 || y + (n - 1) > height - 1)
-				img_out[y][x] = img[y][x];
-			else {
-				sum1 = ReadBlockMasking(x, y, n, fnH1, img);
-				
-				//img_out[y][x]= fabs((int)sum1);
-				img_out[y][x] = ((int)sum1);
-			}
-		}
-	}
-}
-void masking2(int **img, int **img_out, int height, int width, int n) { // °¡·Î -1 0 1 ;  gx¼ººĞ
-	float **fnH1 = FloatAlloc2(n, n);
-
-	int a = -1;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			fnH1[i][j] = a++;
-		}
-		a = -1;
-	}
-	/*
-	for (int i = 0; i < n; i++) {
-	for (int j = 0; j < n; j++) {
-	printf("%f ", fnH1[i][j]);
-	}
-	printf("\n");
-	*/
-	
-	float sum1 = 0.0;
-
-	for (int y = 0; y < height - ((n - 1) / 2); y++) {
-		for (int x = 0; x < width - ((n - 1) / 2); x++) {//256-4
-			if (x - (n - 1) < 0 || y - (n - 1) < 0 || x + (n - 1) > width - 1 || y + (n - 1) > height - 1)
-				img_out[y][x] = img[y][x];
-			else {
-				sum1 = ReadBlockMasking(x, y, n, fnH1, img);
-			
-				//img_out[y][x] = fabs((int)sum1);
-				img_out[y][x] = ((int)sum1);
-			}
-
-		}
-	}
-}
-
-
-//low-pass filter:º¯È­°¡ ¸¹Àº°É Áö¿ò-> »çÁøÀÌ ¹¶°³Áü
-//high:º¯È­°¡ ÀûÀº°É Áö¿ò->
-void prob1009() { //ÇÕ¼º°ö, h:n*n block¿¡ 1/3, -> h¶û img blockÀÌ¶û °¢ ÀÎµ¦½º³¢¸® °öÇÔ->"Masking"
-	int width, height;
-	int **img = ReadImage("LENA256_salt(noise_add).bmp", &width, &height);
-	int **img_out1 = IntAlloc2(width, height);
-	int **img_out2= IntAlloc2(width, height);
-
-	//masking(img, img_out1, height, width, 3);
-	
-	meanFiltering(img, img_out2, width, height, 3);
-	ImageShow("test", img, width, height);
-	ImageShow("test1", img_out1, width, height);//masking
-	ImageShow("test2", img_out2, width, height);
-
-}
-
-int FindMax(int **img, int height, int width) {
-	int max = 0;
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++)
-		{
-			max = IMAX(img[y][x], max);
-		}
-	}
-	return max;
-}
-
-void Scaling(float alpha, int **img_out, int height, int width)
-{
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++)
-		{
-			img_out[y][x] = alpha*img_out[y][x];//ÃÖ´ñ°ª->255, 0->0
-		}
-	}
-}
-
-
-void prob1017()
-{
-	int width, height;
-	int **img = ReadImage("lena512_gaussian.bmp", &width, &height);
-	int **img_out1 = IntAlloc2(width, height);
-	int **img_out2 = IntAlloc2(width, height);
-	int **img_out3 = IntAlloc2(width, height);
-
-	// ÇÊÅÍ¸µÇÏ´Â ÇÁ·Î±×·¥/ÇÔ¼ö
-	masking1(img, img_out1, height, width, 3);
-	masking2(img, img_out2, height, width, 3);
-
-	int maxvalue1 = FindMax(img_out1, height, width);
-	int maxvalue2 = FindMax(img_out2, height, width);
-
-	float alpha1 = 255.0 / maxvalue1;
-	float alpha2 = 255.0 / maxvalue2;
-
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++)
-		{
-			img_out3[y][x] = img_out1[y][x]+ img_out2[y][x];
-			//img_out3[y][x] = IMAX(IMIN(img_out3[y][x], 255), 0);
-		}
-	}
-	int maxvalue3 = FindMax(img_out3, height, width);
-	float alpha3 = 255.0 / maxvalue3;
-
-	Scaling(alpha3, img_out3, height, width);
-	Scaling(alpha1, img_out1, height, width);
-	Scaling(alpha2, img_out2, height, width);
-
-	ImageShow("test", img, width, height);
-	ImageShow("test1", img_out1, width, height);
-	ImageShow("test2", img_out2, width, height);
-	ImageShow("test3", img_out3, width, height);
-}
-
-void FindEdgeAngle(int width,int height,int **img,int **img_out){
-	
-	float **theta = FloatAlloc2(width, height);
-	int **gy = IntAlloc2(width, height);
-	int **gx = IntAlloc2(width, height);
-
-	masking1(img, gy, height, width, 3);//gy
-	masking2(img, gx, height, width, 3);
-
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++)
-		{
-			theta[y][x] = atan2((double)gy[y][x], gx[y][x]);
-
-		}
-	}
-	//±â¿ï±â: 255/(PI*2)
-	float gradient = 255 / (PI * 2);
-
-	for (int y = 0; y < height; y++)//Á÷¼±¿¡ ´ëÀÔ
-	{
-		for (int x = 0; x < width; x++)
-		{
-			img_out[y][x] = (int) (gradient *(theta[y][x]+PI));
-		}
-	}
-
-	ImageShow("test", img, width, height);
-	ImageShow("test1", img_out, width, height);
-
-}
-//int **gx,int **gy,float **theta,
-void prob1024() {
-	int width, height;
-	int **img = ReadImage("lena512_gaussian.bmp", &width, &height);
-	
-	int **img_out = IntAlloc2(width, height);
-
-	FindEdgeAngle(width, height, img, img_out);
-}
-
-int Interpolation(float x, float y, int ** img, int height,int width) {//100.3 201
-
-	float deltaX = x - (int)x;
-	float deltaY = y - (int)y;
-	
-	int Y = (1 - deltaX)*(1 - deltaY)*img[(int)y][(int)x]
-		+ (deltaX)*(1 - deltaY)*img[(int)y][(int)x+1]
-		+ (1 - deltaX)*(deltaY)*img[(int)y+1][(int)x]
-		+ (deltaX)*(deltaY)*img[(int)y+1][(int)x + 1];
-
-	return Y;
-
-}
-void InverseMatrix(float **M, float **M_1) {
-	float a = M[0][0];
-	float b = M[0][1];
-	float c = M[1][0];
-	float d = M[1][1];
-
-	float Det = a*d - b*c;
-	M_1[0][0] = d / Det;
-	M_1[0][1] = -b / Det;
-	M_1[1][0] = -c / Det;
-	M_1[1][1] = a / Det;
-}
-
-void magnification(float m,int **img,int** img_out,int height,int width) {// m¹èÀ² ÇÏ´Â°Å
-	//mÀÌ 2¸é->2¹è´Ï±î x»çÀÌ¿¡ 2°³ , y»çÀÌ¿¡ 2°³
-	float** affineT = FloatAlloc2(2, 2);
-	float** inv_affineT = FloatAlloc2(2, 2);
-
-	affineT[0][0] = m; affineT[0][1] = 0;
-	affineT[1][0] = 0; affineT[1][1] = m;
-
-	InverseMatrix(affineT, inv_affineT);
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			img_out[y][x] = 0; // ±×·¸Áö ¾ÊÀ¸¸é »çÁøÀ§¿¡ È¸ÀüµÈ »çÁøÀÌ ³ª¿È
-							   // È¸Àü½ÃÅ°´Â °ª(ÁÂÇ¥È¸Àü), Á¤¼ö¸¦ È¸Àü½ÃÄÑ ½Ç¼ö¸¦ ¾òÀ½->¹è¿­À» °öÇØÁØ °ÍÀÓ..
-
-			float newX = inv_affineT[0][0] *x + inv_affineT[0][1] * y;
-			float newY = inv_affineT[1][0] *x + inv_affineT[1][1] * y;
-
-			if (newX >= 0 && newY >= 0 && newX < width - 1 && newY < height - 1) { // ÀÌ¹ÌÁöÀÇ Å©±â ¾È¿¡¼­¸¸ Ç¥Çö
-				img_out[y][x] = Interpolation(newX, newY, img, height, width); // °°Àº °ªÀ¸·Î ÇÔ¼ö¿¡¼­ »ç¿ëÇØ¼­ ¸ğµÎ °°Àº °ªÀÌ µé¾î°¨
-
-			}
-			//else // °¡ÀåÀÚ¸®´Â Á¦¿Ü
-			//	img_out[y][x] = img[y][x];
-		}
-	}
-}
-
-void rotateInterpolation(int height, int width, int** img_out, float radian, int** img) {
-
-	float** affineT = FloatAlloc2(2, 2);
-	float** inv_affineT = FloatAlloc2(2, 2);
-
-	affineT[0][0] = cos(radian); affineT[0][1] = -sin(radian);
-	affineT[1][0] = sin(radian); affineT[1][1] = cos(radian);
-
-	InverseMatrix(affineT, inv_affineT);
-
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			img_out[y][x] = 0; // ±×·¸Áö ¾ÊÀ¸¸é »çÁøÀ§¿¡ È¸ÀüµÈ »çÁøÀÌ ³ª¿È
-							   // È¸Àü½ÃÅ°´Â °ª(ÁÂÇ¥È¸Àü), Á¤¼ö¸¦ È¸Àü½ÃÄÑ ½Ç¼ö¸¦ ¾òÀ½->¹è¿­À» °öÇØÁØ °ÍÀÓ..
-
-			float newX = inv_affineT[0][0]*x + inv_affineT[0][1] *y;
-			float newY = inv_affineT[1][0] *x + inv_affineT[1][1]*y;
-
-			if (newX >= 0 && newY >= 0 && newX < width && newY < height) { // ÀÌ¹ÌÁöÀÇ Å©±â ¾È¿¡¼­¸¸ Ç¥Çö
-				img_out[y][x] = Interpolation(newX, newY, img, height, width); // °°Àº °ªÀ¸·Î ÇÔ¼ö¿¡¼­ »ç¿ëÇØ¼­ ¸ğµÎ °°Àº °ªÀÌ µé¾î°¨
-			}
-
-			//else // °¡ÀåÀÚ¸®´Â Á¦¿Ü
-			//	img_out[y][x] = img[y][x];
-		}
-	}
-}
-void centerRotate(int height, int width, int** img_out, float radian, int** img) {
-	float centerX = width / 2.0;
-	float centerY = height / 2.0;
-
-	float** affineT = FloatAlloc2(2, 2);
-	float** inv_affineT = FloatAlloc2(2, 2);
-
-	affineT[0][0] = cos(radian); affineT[0][1] = -sin(radian);
-	affineT[1][0] = sin(radian); affineT[1][1] = cos(radian);
-
-	InverseMatrix(affineT, inv_affineT);
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			img_out[y][x] = 0; // ±×·¸Áö ¾ÊÀ¸¸é »çÁøÀ§¿¡ È¸ÀüµÈ »çÁøÀÌ ³ª¿È
-							   // È¸Àü½ÃÅ°´Â °ª(ÁÂÇ¥È¸Àü), Á¤¼ö¸¦ È¸Àü½ÃÄÑ ½Ç¼ö¸¦ ¾òÀ½->¹è¿­À» °öÇØÁØ °ÍÀÓ..
-
-
-			float newX = inv_affineT[0][0] * (x - centerX) + inv_affineT[0][1] * (y - centerY) + centerX;
-			float newY = inv_affineT[1][0] * (x - centerX) + inv_affineT[1][1] * (y - centerY) + centerY;
-
-			if (newX >= 0 && newY >= 0 && newX < width-1 && newY < height-1) { // ÀÌ¹ÌÁöÀÇ Å©±â ¾È¿¡¼­¸¸ Ç¥Çö
-				img_out[y][x] = Interpolation(newX, newY, img, height, width); // °°Àº °ªÀ¸·Î ÇÔ¼ö¿¡¼­ »ç¿ëÇØ¼­ ¸ğµÎ °°Àº °ªÀÌ µé¾î°¨
-
-			}
-			//else // °¡ÀåÀÚ¸®´Â Á¦¿Ü
-			//	img_out[y][x] = img[y][x];
-		}
-	}
-}
-
-
-void AffineTransform(int height, int width, int** img_out, float radian, int** img) {
-	float centerX = width / 2.0;
-	float centerY = height / 2.0;
-
-	float** affineT = FloatAlloc2(2, 2);
-	float** inv_affineT = FloatAlloc2(2, 2);
-
-	affineT[0][0] = 0.5; affineT[0][1] = 1;
-	affineT[1][0] = 1; affineT[1][1] = 0.8;
-
-	InverseMatrix(affineT, inv_affineT);
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			img_out[y][x] = 0; 
-
-
-			float newX = inv_affineT[0][0] * (x - centerX) + inv_affineT[0][1] * (y - centerY) + centerX;
-			float newY = inv_affineT[1][0] * (x - centerX) + inv_affineT[1][1] * (y - centerY) + centerY;
-
-			if (newX >= 0 && newY >= 0 && newX < width - 1 && newY < height - 1) { 
-				img_out[y][x] = Interpolation(newX, newY, img, height, width); 
-			}
-		}
-	}
-}
-
-void prob1106() {
-	int width, height;
-	int** img = ReadImage("lena512_gaussian.bmp", &height, &width);
-	int** img_out1 = IntAlloc2(height, width);
-	int** img_out2 = IntAlloc2(height, width);
-	int** img_out3 = IntAlloc2(height, width);
-	float radian;
-	
-	radian = 30;
-
-	radian = radian / 180 * PI; 
-
-
-	//magnification(2, img, img_out1, height, width);
-	//centerRotate(height, width, img_out1, radian, img);
-	AffineTransform(height, width, img_out1, radian, img);//ÆòÇà»çº¯ÇüÀ¸·Î ¸¸µé¸é¼­ È¸ÀüÇÏ´Â °ÍÃ³·³ º¸ÀÌ±â
-
-	ImageShow("input", img, height, width);
-	ImageShow("output1", img_out1, height, width);
-	//ImageShow("output2", img_out3, height, width);
-
-	IntFree2(img, height, width);
-	IntFree2(img_out1, height, width);
-	IntFree2(img_out2, height, width);
-	IntFree2(img_out3, height, width);
-
-}
-int ReadBlock2(int x, int y, int n1, int n2, int *block, int** img,int width,int height) {
-	
-	//int z = n1 - 2;
-	int aa = 0;
-	int result = 0;
-	int indexB = 0;
-	for (int dy = 0; dy < n1; dy++) {//3: -1~1 , 5:-2~2
-		for (int dx = 0; dx < n1; dx++) {
-			
-			if (y + dy >= 0 && x + dx >= 0&& y + dy < height && x + dx < width) {
-				
-				block[indexB++] = img[y + dy][x + dx];
-				result += img[y + dy][x + dx];
-			}
-			else return -1;
-		}
-	}
-
-	return result;
-}
-
-
-void drawBox(int **img,int x_out,int y_out,int width,int height) {
-	for (int dy = 0; dy < 16; dy++) {
-		for (int dx = 0; dx < 16; dx++) {
-			//img[y_out + dy][x_out + dx]=0;
-			if (dy == 0 || dx == 0 || dy == 15 || dx == 15)
-				img[y_out + dy][x_out + dx] = 254;
-		}
-	}
-	ImageShow("input", img, width, height);
-}
-void TemplaeMatching(int **block, int bSize, int **img, int height, int width, int* x_out, int* y_out, int* terror) {
-
-	int* imgBlock = (int*)malloc(bSize * bSize * sizeof(int));
-
-	int a = 0;
-
-
-	//ReadBlock()
-	for (int y = 0; y < height; y += 32) {
-		for (int x = 0; x < width; x += 32) {
-
-			int result = ReadBlock2(x, y, bSize, bSize, imgBlock, img, width, height); //result: |A|
-			int index = 0;
-			int temp = 0;
-
-			if (result != -1) {
-				for (int dy = 0; dy < bSize; dy++) {
-					for (int dx = 0; dx < bSize; dx++) {
-						temp += abs(imgBlock[index++] - block[dy][dx]);//µÑÀÌ »«°Å¸¦ Àı´ëÄ¡ ÃëÇÔ
-
-					}
-				}
-
-				if (a == 0)
-					*terror = temp;
-
-				if (temp < *terror) {
-					*x_out = x;
-					*y_out = y;
-					*terror = temp;
-				}
-			}
-			a++;
-		}
-	}
-
-}
-void prob1113() {
-	int width, height;
-	int** img = ReadImage("koala.bmp", &width, &height);
-	int** img_out = IntAlloc2(width, height);
-	
-
-	int x_out = 0;
-	int y_out = 0;
-	int terror = 0;
-
-	int widthB, heightB;
-	int** block = ReadImage("template.bmp", &heightB , &widthB);
-
-	TemplaeMatching(block, 16, img, height, width, &x_out, &y_out, &terror);
-	
-	ImageShow("input", img, width, height);
-	drawBox(img, x_out, y_out, width, height);
-
-}
-
-
-void ReadBlock_img1(int **block, int** img, int width, int height) {//+90µµ->»óÇÏ´ëÄªµÊ;
-	int indexB = 0;
-	
-
-	for (int i = 0; i < width; i++) {
-		
-		for (int j = height - 1; j > 0; j--) {
-			block[i][height-j] = img[j][i];
-			//block[j][i] = img[height - j][width - i];
-			
-			
-		}
-	}
-
-}
-
-void ReadBlock_img2(int **block, int** img, int width, int height) {//-90µµ-> ¾î ÁÂ¿ì´ëÄªµÊ;
-	int indexB = 0;
-
-	for (int i = width; i > 0; i--) {
-		for (int j = 0; j <height; j++) {
-			block[height-i][j] = img[j][i];
-			//[j][i] = img[j][width - i];
-		}
-	}
-
-}
-
-void ReadBlock_img3(int **block, int** img, int width, int height) {//ÁÂ¿ì´ëÄª
-	int indexB = 0;
-
-	for (int i = width - 1; i >= 0; i--) {
-		for (int j = 0; j <height; j++) {
-			block[j][width - i] = img[j][i];
-			//[j][i] = img[j][width - i];
-		}
-	}
-
-}
-
-void ReadBlock_img4(int **block, int** img, int width, int height) {//»óÇÏ´ëÄª(¤·)
-	int indexB = 0;
-
-	for (int i = height-1; i > 0; i--) {
-		for (int j = 0; j < width; j++) {
-			block[height - i][j] = img[i][j];
-		}
-	}
-
-}
-
-
-void prob1120() {
-	int width, height;
-	int widthB, heightB;
-	int** img = ReadImage("koala.bmp", &width, &height);
-
-	int** blocks[5];
-	blocks[0]= ReadImage("template(flipping).bmp", &widthB, &heightB);
-	for (int i = 1; i < 5; i++){
-		blocks[i] = (int**)IntAlloc2(widthB, heightB);
-	}
-
-
-	ReadBlock_img1(blocks[1], blocks[0], widthB, heightB);
-	ReadBlock_img2(blocks[2], blocks[0], widthB, heightB);
-	ReadBlock_img3(blocks[3], blocks[0], widthB, heightB);
-	ReadBlock_img4(blocks[4], blocks[0], widthB, heightB);
-
-
-	//ImageShow("input0", img0, widthB, heightB);
-	//ImageShow("input1", img1, widthB, heightB);
-	//ImageShow("input2", img2, widthB, heightB);
-	//ImageShow("input3", img3, widthB, heightB);
-	//ImageShow("input4", img4, widthB, heightB);
-
-	int x_out[4] = { 0};
-	int y_out[4] = { 0 };
-	int terror[4] = { 0 };
-	
-
-	for(int i=0;i<4;i++)
-		TemplaeMatching(blocks[i+1], 16, img, height, width, &x_out[i], &y_out[i], &terror[i]);
-
-	
-	int index = 0;
-	for (int i = 1; i < 4; i++) {
-		if (terror[index] > terror[i])
-			index = i;
-	}
-	
-	
-	drawBox(img, x_out[index], y_out[index], width, height);
-
-}
-void drawBlock(int **img,int **block, int x_out, int y_out) {
-	for (int dy = 0; dy < 32; dy++) {
-		for (int dx = 0; dx < 32; dx++) {
-			//img[y_out + dy][x_out + dx]=0;
-			img[y_out + dy][x_out + dx] =block[dy][dx] ;
-		}
-	}
-	//ImageShow("input", img, width, height);
-}
-
-
-
-void DrawSquare(int **block, int x1, int x2, int y1, int y2, int height, int  width) { //»ç°¢Çü ±×¸®´Â ÇÔ¼ö
-
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			if (j >= x1 && j <= x2){
-				block[y1][j] = 255;
-				block[y2][j] = 255;
-			}
-			if (i >= y1 && i <= y2){
-				block[i][x1] = 255;
-				block[i][x2] = 255;
-			}
-		}
-	}
-
-}
-
-void FindMaxMin(int **block, int *x1, int *x2, int *y1, int *y2,int height, int  width) { //»ç°¢Çü ±×¸®·Á°í ³ôÀÌ ³Êºñ ±¸ÇÏ´Â°Å
-	int stackX = 0; int stackY = 0;
-
-	int tempX1 = width; int tempX2 = 0; int tempY1 = height; int tempY2 = 0;
-
-	int i = 0; int j = 0;
-	
-	for (i = 0; i < height-1; i++) { //y
-		for (j = 0; j < width; j++) { //x
-			if (stackX==0&& block[i][j] >0) { //¸ÇÃ³À½ 0ÀÌ¾ú´Ù°¡ Èò»ö µîÀå
-				stackX++; //±× ¶óÀÎ Èò»öµîÀåÇ¥½Ã
-				tempX1 = IMIN(tempX1, j); 
-			}
-			
-			if (stackX == 1 && block[i][j] == 0) {//Èò»ö µîÀå ÈÄ Áö±İ °ËÀº»ö µîÀå
-				tempX2 = IMAX(tempX2, j);
-				stackX = 0; //¶óÀÎ ÃÊ±âÈ­
-			}
-
-
-			if (stackY == 0 && block[i][j] > 0) { //¼¼·Î·Î Èò»ö µîÀå 
-				stackY++;
-				tempY1 = i; //±×¶§ °ªÀÌ  y1
-			}
-
-			if (stackY == 1 && block[i][j] >0 && block[i+1][j]==0) { //Èò»ö µîÀå ÈÄ Áö±İ ¼¼·Î¿¡ °ËÀº»ö µîÀå
-				tempY2 = IMAX(tempY2, i);
-				//stackY = 10;
-			}
-		}  
-	}
-
-	*x1 = tempX1;
-	*x2 = tempX2;
-	*y1 = tempY1;
-	*y2 = tempY2;
-}
-
-void DrawLine(int **block, int x1, int x2,int y1, int y2, int height, int  width) {
-	float m = (float)(y1 - y2) / (x1 - x2);
-	float a = m;
-	float b = -1;
-	float c = (-m*x1) + y1;
-	float d = 0;
-
-	int maxY = IMAX(y1, y2);
-	int minY = IMIN(y1, y2);
-
-
-	for (int y = minY; y < maxY; y++) {
-		for (int x = 0; x < width; x++) {
-			d = ((a*x) + (b*y) + c ) / sqrt(a*a + b*b);
-			
-			if (abs(d) < 1)
-				block[y][x] = 255;
-		}
-	}
-}
-
-
-
-void extractionNUM(int **block, int height, int  width, int* x1, int* x2, int* y1, int* y2) { //¼ıÀÚ¸¦ ÃßÃâÇÏ´Â ÇÔ¼ö
-
-	int stack = 0;
-	
-	int offset[5]={0};
-
-	int sumX = 0; int sumY = 0;
-
-	int n = 0;
-	
-	for (int x= 0; x < width; x++) { 
-
-		for (int y = 0; y < height; y++) { //¼¼·Î ¶óÀÎº°·Î sum°ª, 0ÀÌ ³ª¿À¸é? ¼ıÀÚ ÀÚ¸£±â
-			sumY += block[y][x];
-		}
-
-		if (sumY == 0) {
-			stack++;
-		}
-
-		if (stack > 60) { //°ø¹éÀÌ 60px³ÑÀ» ¶§, ¼ıÀÚ¸¦ ÀÚ¸¥´Ù
-			stack = 0;// °ø¹éstack ÃÊ±âÈ­
-			offset[n] = x; //offset
-			n++;
-		}
-		sumY = 0;
-	}
-
-	/*x¹üÀ§ ´ë°­ Á¤ÇØÁÖ±â*/
-	x1[0] = 0;
-	x2[0] = offset[0] - 60;
-	for (int i = 1; i < 4; i++) {
-		x2[i] = offset[i] - 60;
-		x1[i] = x2[i - 1];
-	}
-
-	
-
-}
-
-void FindMaxMin2(int **block, int *x1, int *x2, int *y1, int *y2, int height, int  width) { //Á¤È®ÇÑ x,y ¹üÀ§ ±¸ÇÏ±â
-	int stackX = 0; int stackY = 0;
-
-	int tempX1 = width; int tempX2 = 0; int tempY1 = height; int tempY2 = 0;
-
-	int i = 0; int j = 0;
-
-	for (i = *y1; i <  *y2 - 1; i++) { //y
-		for (j = *x1; j < *x2; j++) { //x
-			if (stackX == 0 && block[i][j] >0) { //¸ÇÃ³À½ 0ÀÌ¾ú´Ù°¡ Èò»ö µîÀå
-				stackX++; //±× ¶óÀÎ Èò»öµîÀåÇ¥½Ã
-				tempX1 = IMIN(tempX1, j);
-			}
-
-			if (stackX == 1 && block[i][j] == 0) {//Èò»ö µîÀå ÈÄ Áö±İ °ËÀº»ö µîÀå
-				tempX2 = IMAX(tempX2, j);
-				stackX = 0; //¶óÀÎ ÃÊ±âÈ­
-			}
-
-
-			if (stackY == 0 && block[i][j] > 0) { //¼¼·Î·Î Èò»ö µîÀå 
-				stackY++;
-				tempY1 = i; //±×¶§ °ªÀÌ  y1
-			}
-
-			if (stackY == 1 && block[i][j] >0 && block[i + 1][j] == 0) { //Èò»ö µîÀå ÈÄ Áö±İ ¼¼·Î¿¡ °ËÀº»ö µîÀå
-				tempY2 = IMAX(tempY2, i);
-				//stackY = 10;
-			}
-		}
-	}
-
-	*x1 = tempX1;
-	*x2 = tempX2;
-	*y1 = tempY1;
-	*y2 = tempY2;
-
-}
-
-
-
-
-void exam() {//½Ç±â½ÃÇè
-	
-	int** block;
-	int width, height;
-
-	block = ReadImage("num_img(0-4).bmp", &width, &height);
-
-
-	int x1[5] = { 0 }; int x2[5] = { 0 }; int y1[5] = { 0 }; int y2[5] = { 0 };
-
-	extractionNUM(block, height, width, x1,x2,y1,y2);
-
-	/*´ë°­ ¼ıÀÚ ÀÚ¸¥°Å Á¤È®ÇÑ x,y¹üÀ§ Á¤ÇØÁÖ±â*/
-	for (int i = 0; i < 4; i++) {
-		FindMaxMin(block, &x1[i], &x2[i], &y1[i], &y2[i], height, width); //Á¤È®ÇÑ ¹üÀ§ Àâ¾ÆÁÖ°í
-		DrawSquare(block, x1[i], x2[i], y1[i], y2[i], height, width);//»ç°¢Çü ±×·ÁÁÖ±â
-		
-
-		ImageShow("aa", block, width, height);//¾Ç ¿Ö¾ÈµÅ¤Ì¤Ì¤Ì¤Ì¤Ì........
-	}
-	
-
-	//ImageShow("aa", block, width, height);
-
-	
-	//int **block[10];
-	//int width, height;
-	//char filename[100];
-	//
-	//int x1 = 0; int x2 = 0; int y1 = 0; int y2 = 0;
-
-	//for (int i = 0; i < 10; i++) { 
-	//	sprintf(filename, "%d_org.bmp", i);
-	//	block[i] = ReadImage(filename, &width, &height);//0~9 block ÀĞ°í block[i]¿¡ ÀúÀå
-
-	//	FindMaxMin(block[i], &x1, &x2, &y1, &y2, height, width);//»ç°¢Çü ±×¸±·Á°í »çÀÌÁî Ã£±â
-	//	DrawSquare(block[i], x1,x2, y1, y2, height, width); //»ç°¢Çü ±×¸®±â
-
-	//	DrawLine(block[i], x1, x2, y1, y2, height, width);
-	//	DrawLine(block[i], x2, x1, y1, y2, height, width);
-
-	//	ImageShow("aa", block[i], width, height);
-	//}
-
-}
-
-
-void TemplaeMatching2(int **block, int bSize, int **img, int height, int width, int* x_out, int* y_out, int* terror) {
-
-	int* imgBlock = (int*)malloc(bSize * bSize * sizeof(int));
-	int a = 0;
-
-
-	//ReadBlock()
-	for (int y = 0; y < height; y += 32) {
-		for (int x = 0; x < width; x += 32) {
-
-			int result = ReadBlock2(x, y, bSize, bSize, imgBlock, img, width, height); //result: |A|
-			int index = 0;
-			int temp = 0;
-
-			if (result != -1) {
-				for (int dy = 0; dy < bSize; dy++) {
-					for (int dx = 0; dx < bSize; dx++) {
-						temp += abs(imgBlock[index++] - block[dy][dx]);//µÑÀÌ »«°Å¸¦ Àı´ëÄ¡ ÃëÇÔ
-					}
-				}
-
-				if (a == 0)
-					*terror = temp;
-
-				if (temp < *terror) {
-					*x_out = x;
-					*y_out = y;
-					*terror = temp;
-				}
-			}
-			a++;
-		}
-	}
-
-}
-void main_() {
-	int **block[510];
-	int width, height;
-	int widthB, heightB;
-	
-	char filename[100];
-
-	for (int i = 0; i < 510; i++) {
-		sprintf(filename, "dbs%04d.jpg", i);
-		block[i] = ReadImage(filename, &widthB, &heightB);
-	}
-	int** img = ReadImage("koala.bmp", &width, &height);
-
-	//int blockTable[510] = { 0 }; //blockTable ¹Ì¸® ¸¸µé¾î³õ±â
-	int indexH[24] = { 0 };
-
-	for (int i = 0; i<510; i++) {
-		int x_out = 0;
-		int y_out = 0;
-		int terror = 0;
-		
-		TemplaeMatching2(block[i], 32, img, height, width, &x_out, &y_out, &terror);
-		indexH[y_out / 32] = 1;
-		
-
-		drawBlock(img, block[i], x_out, y_out);
-
-
-	}
-	ImageShow("aa", img, width, height);
-
-
-}
-
-int ComputeError(int x, int y, int** img, int** block, int bsize,int height) {
-	int error = 0;
-	if(y!=height){
-		for (int Y = 0; Y < bsize; Y++) {
-			for (int X = 0; X < bsize; X++) {
-				error += abs(block[Y][X] - img[Y + y][X + x]);
-			}
-		}
-	}
-	return error;
-}
-void Compare(int x, int y, int** block_out[], int bsize, int** img, int** img_out) {
-	int err, index_min = 0, err_min = 1000000;
-
-	for (int i = 0; i < 510; i++) {
-		err = ComputeError(x, y, img, block_out[i], bsize,768); // ¿ø·¡ img¶û È¸ÀüµéÀÌ¶û error¸¦ °è»êÇØ¼­
-
-		if (err < err_min) {//°¡Àå error°¡ ÀûÀº index¸¦ Ã£°í
-			err_min = err;
-			index_min = i;
-		}
-	}
+int CaculateBlockDiff_color(int x, int y, int_rgb** img, int_rgb** block, int bsize) {
+	int_rgb error;
+	error.r = 0; error.g = 0; error.b = 0;
 
 	for (int Y = 0; Y < bsize; Y++) {
 		for (int X = 0; X < bsize; X++) {
-			img_out[Y + y][X + x] = block_out[index_min][Y][X]; //°á°ú img_out¿¡ ºí¶ôÀ» ³Ö¾îÁÜ
-		}
-	}
-}
-void MultiTemplate(int height, int width, int** img, int** img_out, int** block_out[], int bsize) { // block_outÀÇ ºí·°µéÀ» bsize¸¸Å­ Å©±â·Î ³Ö¾îÁÜ
-
-	for (int y = 0; y < height; y += 32) {
-		for (int x = 0; x < width; x += 32) {
-			Compare(x, y, block_out, bsize, img, img_out);//img¶û block_outÀÌ¶û ºñ±³ÇØ¼­ img_out¿¡ ³Ö¾îÁÖ´Â°Å.
-		}
-	}
-}
-
-
-void main_mosaic() {
-	int height, width, h_height, h_width;
-	int** img = ReadImage("koala.bmp", &width, &height);
-	int** img_out1 = IntAlloc2(width, height);//È¸ÀüX
-	int** img_out2 = IntAlloc2(width, height);//È¸ÀüO
-	char filename[100];
-	int bsize = 32;
-	int** block[510];
-	int** block_out[510*5];
-	
-	for (int i = 0; i < 510*5; i++) {
-		if (i < 510) {
-			sprintf(filename, "dbs%04d.jpg", i);
-			block[i] = ReadImage(filename, &h_width, &h_height);
-		}
-		block_out[i] = IntAlloc2(h_width, h_height);
-	}
-
-	MultiTemplate(height, width, img, img_out1, block, bsize);
-	
-	for (int y = 0; y < height; y += 32) {
-		for (int x = 0; x < width; x += 32) {
-			int err, index_min = 0, err_min = 1000000;
-
-			for (int i = 0; i < 510*5; i++) {
-				if (i < 510) {
-					block_out[i] = block[i];
-				}
-				if (i >= 510 && i < 510*2) {
-					ReadBlock_img1(block_out[i], block[i - 510], bsize, bsize);
-				}
-				if (i >= 510 * 2 && i < 510*3) {
-					ReadBlock_img2(block_out[i], block[i - 510*2], bsize, bsize);
-				}
-				if (i >= 510 * 3 && i < 510*4) {
-					ReadBlock_img3(block_out[i], block[i - 510 * 3], bsize, bsize);
-				}
-				if (i >= 510 * 4 && i < 510*5) {
-					ReadBlock_img4(block_out[i], block[i - 510 * 4], bsize, bsize);
-				}
-				err = ComputeError(x, y, img, block_out[i], bsize, height); // ÇØ´ç ºí·°ÀÇ Ã£±â
-
-				if (err < err_min) {//min - out ºñ±³
-					err_min = err;
-					index_min = i;
-				}
-			}
-
-			for (int Y = 0; Y < bsize; Y++) {
-				for (int X = 0; X < bsize; X++) {
-					img_out2[Y + y][X + x] = block_out[index_min][Y][X];
-				}
-			}
+			error.r += abs(block[Y][X].r - img[Y + y][X + x].r);
+			error.g += abs(block[Y][X].g - img[Y + y][X + x].g);
+			error.b += abs(block[Y][X].b - img[Y + y][X + x].b);
 		}
 	}
 
-	ImageShow("input", img, width, height);
-	ImageShow("È¸ÀüX", img_out1, width, height);
-	ImageShow("È¸ÀüO", img_out2, width, height);
-
-}
-
-struct IMG
-{
-	int **img;
-	int height;
-	int width;
-};
-
-
-void setStruct(int **img, int height, int width, IMG *A)
-{
-	
-	A->height = height;
-	A->width = width;
-	A->img = (int**)IntAlloc2(width, height);
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			A->img[y][x] = img[y][x];
-		}
-	}
-}
-void Geo1_Struct(IMG *A, IMG *B,int bsize) { // +90È¸Àü
-	for (int y = 0; y < bsize; y++) {
-		for (int x = 0; x < bsize; x++) {
-			//block_out[x][bsize - 1 - y] = block_in[y][x];
-			B->img[x][bsize - 1 - y] = A->img[y][x];
-		}
-	}
-}
-
-
-void ImageShow222(char* winname, IMG A)
-{
-	Mat img(A.height, A.width, CV_8UC1);
-	for (int i = 0; i<A.height; i++)
-		for (int j = 0; j<A.width; j++)
-			img.at<unsigned char>(i, j) = (unsigned char)A.img[i][j];
-	imshow(winname, img);
-	waitKey(0);
-}
-
-struct CPX
-{
-	int re;
-	int im;
-};
-
-CPX MulCPX(CPX *A, CPX *B) {
-	CPX C;
-	C.re = A->re* B->re - (A->im* B->im);
-	C.im = A->re*B->im + A->im + B->re;
-	return C;
-}
-void printCPX(CPX A) {
-	printf("%d +j %d", A.re, A.im);
-}
-void Test_1204_1()
-{
-	int width, height;
-	int** img = ReadImage("koala.bmp", &width, &height);
-
-	IMG A;
-	A.img = 0;
-	
-	IMG B;
-	B.img = 0;
-
-	setStruct(img, height, width, &A);
-	setStruct(img, height, width, &B);
-
-	Geo1_Struct(&A, &B, 768);
-	ImageShow222("B.img",B);
-
-	/*CPX A, B, C;
-	A.re = 1.0; A.im = 3.0;
-	B.re = 2.0; B.im = -2.0;
-
-	C = MulCPX(&A, &B);
-	printCPX(C);*/
-	
-
-}
-
-void Color2Gray(int_rgb** img_color, int** img_gray, int height, int width) {
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++)
-			img_gray[y][x] = (img_color[y][x].r + img_color[y][x].g + img_color[y][x].b) / 3;
-	}
-}
-
-void prob1204() {
-	int height, width;
-	
-	int_rgb** img_color = ReadColorImage("Koala.jpg", &width, &height);
-	
-
-	int** img_bw = IntAlloc2(width, height);
-
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			img_bw[y][x] = img_color[y][x].g;
-		}
-	}
-	
-	ImageShow("green", img_bw, width, height);
-	ColorImageShow("colorKoala", img_color, width, height);
-	waitKey(0);
-}
-
-
-int ComputeError_color(int x, int y, int_rgb** img, int_rgb** block, int bsize, int height) {
-
-	ColorImageShow("input4", block, bsize, bsize);
-	
-
-	int_rgb error; error.r = 0; error.g = 0; error.b = 0;
-	int error_t;
-	if (y != height) {
-		for (int Y = 0; Y < bsize; Y++) {
-			for (int X = 0; X < bsize; X++) {
-				error.r += abs(block[Y][X].r - img[Y + y][X + x].r);
-				error.g += abs(block[Y][X].g - img[Y + y][X + x].g);
-				error.b += abs(block[Y][X].b - img[Y + y][X + x].b);
-				error_t = error.r + error.g + error.b;
-			}
-		}
-	}
-	return error_t;
+	return (error.r + error.g + error.b);
 }
 
 void Compare_color(int x, int y, int_rgb** block_out[], int bsize, int_rgb** img, int_rgb** img_out) {
-	int index_min = 0;
-	int err = 0;
-	//int_rgb err_min; err_min.r = 1000000; err_min.g = 1000000; err_min.b = 1000000;
-	int err_min = 100000;
+	int err, index_min = 0, err_min = 1000000;
 
 	for (int i = 0; i < 510; i++) {
-		err = ComputeError_color(x, y, img, block_out[i], bsize, 768); // ¿ø·¡ img¶û È¸ÀüµéÀÌ¶û error¸¦ °è»êÇØ¼­
-		if (err < err_min) {//°¡Àå error°¡ ÀûÀº index¸¦ Ã£°í
+		err = CaculateBlockDiff_color(x, y, img, block_out[i], bsize); // blockê³¼ ì´ë¯¸ì§€ì˜ ì°¨ì´ê°€ ê°€ì¥ ì‘ì€ ê°’ì„ ì°¾ëŠ”ë‹¤
+
+		if (err < err_min) {
 			err_min = err;
 			index_min = i;
 		}
 	}
-
+	 
 	for (int Y = 0; Y < bsize; Y++) {
 		for (int X = 0; X < bsize; X++) {
-			img_out[Y + y][X + x].r = block_out[index_min][Y][X].r; //°á°ú img_out¿¡ ºí¶ôÀ» ³Ö¾îÁÜ
-			img_out[Y + y][X + x].g = block_out[index_min][Y][X].g;
-			img_out[Y + y][X + x].b = block_out[index_min][Y][X].b;
+			img_out[Y + y][X + x] = block_out[index_min][Y][X];
 		}
 	}
 }
 
+void MultiTemplate_color(int height, int width, int_rgb** img, int_rgb** img_out, int_rgb** block_out[], int bsize) { // ì—¬ëŸ¬ ì‚¬ì§„ìœ¼ë¡œ í…œí”Œë¦¿ ë§¤ì¹­í•˜ëŠ” í•¨ìˆ˜
 
-
-
-void MultiTemplate_color(int height, int width, int_rgb** img, int_rgb** img_out, int_rgb** block_out[], int bsize) { // block_outÀÇ ºí·°µéÀ» bsize¸¸Å­ Å©±â·Î ³Ö¾îÁÜ
-
-	for (int y = 0; y < height; y += 32) {
-		for (int x = 0; x < width; x += 32) {
-			Compare_color(x, y, block_out, bsize, img, img_out);//img¶û block_outÀÌ¶û ºñ±³ÇØ¼­ img_out¿¡ ³Ö¾îÁÖ´Â°Å.
+	for (int y = 0; y < height; y += bsize) {
+		for (int x = 0; x < width; x += bsize) {
+			Compare_color(x, y, block_out, bsize, img, img_out);// ì—¬ëŸ¬ ê°œì˜ ì‚¬ì§„ ì¤‘ ê°€ì¥ ë¹„ìŠ·í•œ ê°’ì„ ì°¾ì•„ì„œ ê·¸ ìë¦¬ì— ì§‘ì–´ë„£ëŠ” í•¨ìˆ˜
 		}
 	}
 }
 
-
-void ReadBlock_img1_color(int_rgb **block, int_rgb** img, int width, int height) {//+90µµ->»óÇÏ´ëÄªµÊ;
-	int indexB = 0;
-
-
-	for (int i = 0; i < width; i++) {
-
-		for (int j = height - 1; j > 0; j--) {
-			block[i][height - j] = img[j][i];
-			//block[j][i] = img[height - j][width - i];
-
-
+void rotation1(int_rgb** block_in, int_rgb** block_out, int bsize) { // +90íšŒì „
+	for (int y = 0; y < bsize; y++) {
+		for (int x = 0; x < bsize; x++) {
+			block_out[x][bsize - 1 - y] = block_in[y][x];
 		}
 	}
-
 }
 
-void ReadBlock_img2_color(int_rgb **block, int_rgb** img, int width, int height) {//-90µµ-> ¾î ÁÂ¿ì´ëÄªµÊ;
-	int indexB = 0;
-
-	for (int i = width; i > 0; i--) {
-		for (int j = 0; j <height; j++) {
-			block[height - i][j] = img[j][i];
-			
-			//[j][i] = img[j][width - i];
+void rotation2(int_rgb** block_in, int_rgb** block_out, int bsize) { // -90íšŒì „
+	for (int y = 0; y < bsize; y++) {
+		for (int x = 0; x < bsize; x++) {
+			block_out[bsize - 1 - x][y] = block_in[y][x];
 		}
 	}
-
 }
 
-void ReadBlock_img3_color(int_rgb **block, int_rgb** img, int width, int height) {//ÁÂ¿ì´ëÄª
-	int indexB = 0;
-
-	for (int i = width - 1; i >= 0; i--) {
-		for (int j = 0; j <height; j++) {
-			block[j][width - i] = img[j][i];
-			//[j][i] = img[j][width - i];
+void rotation3(int_rgb** block_in, int_rgb** block_out, int bsize) { // ì¢Œìš°ëŒ€ì¹­
+	for (int y = 0; y < bsize; y++) {
+		for (int x = 0; x < bsize; x++) {
+			block_out[y][bsize - 1 - x] = block_in[y][x];
 		}
 	}
-
 }
 
-void ReadBlock_img4_color(int_rgb **block, int_rgb** img, int width, int height) {//»óÇÏ´ëÄª(¤·)
-	int indexB = 0;
-
-	for (int i = height - 1; i > 0; i--) {
-		for (int j = 0; j < width; j++) {
-			block[height - i][j] = img[i][j];
+void rotation4(int_rgb** block_in, int_rgb** block_out, int bsize) { //  ìƒí•˜ëŒ€ì¹­
+	for (int y = 0; y < bsize; y++) {
+		for (int x = 0; x < bsize; x++) {
+			block_out[bsize - 1 - y][x] = block_in[y][x];
 		}
 	}
-
 }
 
-
-void main() {
+#define NUM_T 510
+void main1() { //ì»¬ëŸ¬ íšŒì „ í…œí”Œë¦¿ ë§¤ì¹­
 	int height, width, h_height, h_width;
 	int_rgb** img = ReadColorImage("Koala.jpg", &width, &height);
-
-	int_rgb** img_out1 = IntColorAlloc2(width,height); //È¸Àüx
-	int_rgb** img_out2 = IntColorAlloc2(width, height); //È¸Àüo
-	
-
-	/*int **img = ReadImage("Koala.jpg", &width, &height);
-	ImageShow("aa", img, width, height);*/
-
-	
+	int_rgb** img_out1 = IntColorAlloc2(width, height);
+	int_rgb** img_out2 = IntColorAlloc2(width, height);
 	char filename[100];
 	int bsize = 32;
-	int_rgb** block[510];//510°³ ÅÛÇÃ¸´
-	int_rgb** block_out[510 * 5];//È¸Àü½ÃÅ²°Å Â÷·Ê´ë·Î ³ÖÀ»°Å
+	int_rgb** block[NUM_T];
+	int_rgb** block_out[NUM_T *5];
 
-	for (int i = 0; i < 510 * 5; i++) {
+	
+	for (int i = 0; i < NUM_T * 5; i++) {
 		if (i < 510) {
-			sprintf(filename, "dbs%04d.jpg", i);
+			sprintf_s(filename, "dbs%04d.jpg", i);
 			block[i] = ReadColorImage(filename, &h_width, &h_height);
 		}
 		block_out[i] = IntColorAlloc2(h_width, h_height);
 	}
 
-	//MultiTemplate_color(height, width, img, img_out1, block, bsize);
+	MultiTemplate_color(height, width, img, img_out1, block, bsize);
 
+	
 	for (int y = 0; y < height; y += 32) {
 		for (int x = 0; x < width; x += 32) {
-			int err, index_min = 0, err_min = 3000000;
+			int err_out, index_min = 0, err_min = 1000000;
 
-			for (int i = 0; i <510*5; i++) {
-				if (i < 510) {
-					/*for (int Y = 0; Y < h_height; Y++) {
-						for (int X = 0; X < h_width; X++){
-							block_out[i][Y][X] = block[i][Y][X];
-						}
-					}*/
+			for (int i = 0; i < NUM_T*5; i++) {
+				if (i < NUM_T) {
 					block_out[i] = block[i];
 				}
-				else if (i >= 510 && i < 510 * 2) {
-					ReadBlock_img1_color(block_out[i], block[i - 510], bsize, bsize);
-					
+				if (i >= NUM_T && i < NUM_T*2) {
+					rotation1(block[i - 510], block_out[i], bsize);
 				}
-				else if (i >= 510 * 2 && i < 510 * 3) {
-					ReadBlock_img2_color(block_out[i], block[i - 510 * 2], bsize, bsize);
+				if (i >= NUM_T*2 && i < NUM_T*3) {
+					rotation2(block[i - 1020], block_out[i], bsize);
 				}
-				else if (i >= 510 * 3 && i < 510 * 4) {
-					ReadBlock_img3_color(block_out[i], block[i - 510 * 3], bsize, bsize);
-					
+				if (i >= NUM_T*3 && i < NUM_T*4) {
+					rotation3(block[i - 1530], block_out[i], bsize);
 				}
-				else if (i >= 510 * 4 && i < 510 * 5) {
-					ReadBlock_img4_color(block_out[i], block[i - 510 * 4], bsize, bsize);
-					
+				if (i >= NUM_T*4 && i < NUM_T*5) {
+					rotation4(block[i - 2040], block_out[i], bsize);
 				}
-				err = ComputeError_color(x, y, img, block_out[i], bsize, height); // ÇØ´ç ºí·°ÀÇ Ã£±â
-				printf("%d \n", err);
-				if (err < err_min) {//min - out ºñ±³
-					err_min = err;
+				err_out = CaculateBlockDiff_color(x, y, img, block_out[i], bsize); // blockê³¼ ì´ë¯¸ì§€ì˜ ì°¨ì´ê°€ ê°€ì¥ ì‘ì€ ê°’ì„ ì°¾ëŠ”ë‹¤
+
+				if (err_out < err_min) {
+					err_min = err_out;
 					index_min = i;
-					
 				}
 			}
-			//printf("%d \n", index_min);
+
 			for (int Y = 0; Y < bsize; Y++) {
 				for (int X = 0; X < bsize; X++) {
 					img_out2[Y + y][X + x] = block_out[index_min][Y][X];
-					
 				}
 			}
 		}
 	}
 
 	ColorImageShow("input", img, width, height);
+	ColorImageShow("output1", img_out1, width, height);
+	ColorImageShow("output2", img_out2, width, height);
+	waitKey(0);
 
-	//ColorImageShow("È¸ÀüX", img_out1, width, height);
-	//ColorImageShow("È¸ÀüO", img_out2, width, height);
+}
+
+
+int_rgb ReadBlock(int_rgb** block, int X, int Y, int size) { //siizee=2
+	int_rgb sum;
+	sum.r = 0; sum.g = 0; sum.b = 0;
+	for (int dy = 0; dy < size; dy++) {
+		for (int dx = 0; dx < size; dx++) {
+			sum.r += block[Y+dy][X+dx].r;
+			sum.g += block[Y+dy][X+dx].g;
+			sum.b += block[Y+dy][X+dx].b;
+		}		
+	}
+
+	return sum;
+}
+
+
+void main2_() { //32 -> 16 510ê°œ ì˜ ì¤„ì—¬ì¡Œë‚˜ í™•ì¸
+
+	int height, width;
+	
+	char filename[100];
+	int bsize = 32;
+	int b_out_size = 16;
+	int_rgb** block[NUM_T];
+	int_rgb** block_out[NUM_T];
+
+	for (int i = 0; i < NUM_T; i++) {
+		sprintf_s(filename, "dbs%04d.jpg", i);
+		block[i] = ReadColorImage(filename, &width, &height);
+		block_out[i] = IntColorAlloc2(b_out_size, b_out_size);
+	}
+
+
+
+	int_rgb** img = IntColorAlloc2(16 * 33, 16 * 16);
+
+	int Y = 0; int X = 0;
+	for (int i = 0; i < NUM_T; i++) {//NUM_T=510,
+		
+		int n = bsize / b_out_size; //2
+		int_rgb  sum;
+
+		for (int y = 0; y < bsize; y += n) {
+			for (int x = 0; x < bsize; x += n) {
+				sum = ReadBlock(block[i], x, y, n); //n=2
+				block_out[i][int(y / n)][int(x / n)].r = sum.r / 4;
+				block_out[i][int(y / n)][int(x / n)].g = sum.g / 4;
+				block_out[i][int(y / n)][int(x / n)].b = sum.b / 4;
+			}
+		}
+
+		for (int y = 0; y < 16; y++) {
+			for (int x = 0; x < 16; x++) {
+				img[Y + y][X + x] = block_out[i][y][x];
+			}
+		}
+	
+		if (X < NUM_T)
+			X += 16;
+		else {
+			X = 0;
+			Y += 16;
+		}
+		
+	}
+
+	
+
+	ColorImageShow("input", img, 16*33, 16*16);
+
 	waitKey(0);
 }
 
-void main_bwMozaic() {
-	int height, width, h_height, h_width;
-	int** img = ReadImage("koala.bmp", &width, &height);
-	int** img_out1 = IntAlloc2(width, height);//È¸ÀüX
-	int** img_out2 = IntAlloc2(width, height);//È¸ÀüO
-	char filename[100];
+
+void Reduce_Template(int_rgb*** block, int_rgb*** block_out, int bsize, int b_out_size) {
+	int_rgb** img1 = IntColorAlloc2(16 * 33, 16 * 16);
+
+	int Y = 0; int X = 0;
+	for (int i = 0; i < NUM_T; i++) {//NUM_T=510,
+
+		int n = bsize / b_out_size; //2
+		int_rgb  sum;
+
+		for (int y = 0; y < bsize; y += n) {
+			for (int x = 0; x < bsize; x += n) {
+				sum = ReadBlock(block[i], x, y, n); //n=2
+				block_out[i][int(y / n)][int(x / n)].r = sum.r / (n*n);
+				block_out[i][int(y / n)][int(x / n)].g = sum.g / (n*n);
+				block_out[i][int(y / n)][int(x / n)].b = sum.b / (n*n);
+			}
+		}
+
+		for (int y = 0; y < b_out_size; y++) {
+			for (int x = 0; x < b_out_size; x++) {
+				img1[Y + y][X + x] = block_out[i][y][x];
+			}
+		}
+
+		if (X < NUM_T)
+			X += b_out_size;
+		else {
+			X = 0;
+			Y += b_out_size;
+		}
+
+	}
+	//ColorImageShow("input1", img1, 16 * 33, 16 * 16);
+}
+
+void main_4() { //16 -> 8 510ê°œ ì˜ ì¤„ì—¬ì¡Œë‚˜ í™•ì¸
 	int bsize = 32;
-	int** block[510];
-	int** block_out[510 * 5];
+	int b_out_size = 8;
+	int height, width, h_height, h_width;
+	int_rgb** img = ReadColorImage("Koala.jpg", &width, &height);
+	int_rgb** img_out1 = IntColorAlloc2(width, height);
+	int_rgb** img_out2 = IntColorAlloc2(width, height);
+	char filename[100];
 
-	for (int i = 0; i < 510 * 5; i++) {
-		if (i < 510) {
-			sprintf(filename, "dbs%04d.jpg", i);
-			block[i] = ReadImage(filename, &h_width, &h_height);
-		}
-		block_out[i] = IntAlloc2(h_width, h_height);
+	int_rgb** block[NUM_T];
+	int_rgb** block_out[NUM_T];
+
+
+	for (int i = 0; i < NUM_T; i++) {
+		sprintf_s(filename, "dbs%04d.jpg", i);
+		block[i] = ReadColorImage(filename, &h_width, &h_height);
+		block_out[i] = IntColorAlloc2(b_out_size, b_out_size);
 	}
 
-	MultiTemplate(height, width, img, img_out1, block, bsize);
 
-	for (int y = 0; y < height; y += 32) {
-		for (int x = 0; x < width; x += 32) {
-			int err, index_min = 0, err_min = 1000000;
 
-			for (int i = 0; i < 510 * 5; i++) {
-				if (i < 510) {
-					block_out[i] = block[i];
-				}
-				if (i >= 510 && i < 510 * 2) {
-					ReadBlock_img1(block_out[i], block[i - 510], bsize, bsize);
-				}
-				if (i >= 510 * 2 && i < 510 * 3) {
-					ReadBlock_img2(block_out[i], block[i - 510 * 2], bsize, bsize);
-				}
-				if (i >= 510 * 3 && i < 510 * 4) {
-					ReadBlock_img3(block_out[i], block[i - 510 * 3], bsize, bsize);
-				}
-				if (i >= 510 * 4 && i < 510 * 5) {
-					ReadBlock_img4(block_out[i], block[i - 510 * 4], bsize, bsize);
-				}
-				err = ComputeError(x, y, img, block_out[i], bsize, height); // ÇØ´ç ºí·°ÀÇ Ã£±â
+	int_rgb** img1 = IntColorAlloc2(16 * 33, 16 * 16);
 
-				if (err < err_min) {//min - out ºñ±³
-					err_min = err;
-					index_min = i;
-				}
+	int Y = 0; int X = 0;
+	for (int i = 0; i < NUM_T; i++) {//NUM_T=510,
+
+		int n = bsize / b_out_size; //2
+		int_rgb  sum;
+
+		for (int y = 0; y < bsize; y += n) {
+			for (int x = 0; x < bsize; x += n) {
+				sum = ReadBlock(block[i], x, y, n); //n=2
+				block_out[i][int(y / n)][int(x / n)].r = sum.r / (n*n);
+				block_out[i][int(y / n)][int(x / n)].g = sum.g / (n*n);
+				block_out[i][int(y / n)][int(x / n)].b = sum.b / (n*n);
 			}
+		}
 
-			for (int Y = 0; Y < bsize; Y++) {
-				for (int X = 0; X < bsize; X++) {
-					img_out2[Y + y][X + x] = block_out[index_min][Y][X];
-				}
+		for (int y = 0; y < b_out_size; y++) {
+			for (int x = 0; x < b_out_size; x++) {
+				img1[Y + y][X + x] = block_out[i][y][x];
 			}
+		}
+
+		if (X < NUM_T)
+			X += 8;
+		else {
+			X = 0;
+			Y += 8;
+		}
+
+	}
+	bsize = 8;
+	//MultiTemplate_color(height, width, img, img_out1, block, bsize);
+	MultiTemplate_color(height, width, img, img_out1, block_out, bsize);
+
+
+	ColorImageShow("input", img1, 16 * 33, 16 * 16);
+	ColorImageShow("output1", img_out1, width, height);
+
+	waitKey(0);
+}
+
+
+//ì¼ë‹¨ ì›ë˜ ì´ë¯¸ì§€ì—ì„œ randomìœ„ì¹˜ì— randomí¬ê¸°ë§Œí¼ ì´ë¯¸ì§€ ë½‘ìŒ
+void ExtractRandom(int i, int randomX, int randomY, int_rgb** img_original, int_rgb** img_out, int_rgb** img_extract, int* extract_size) {   
+	
+	switch (i) //ëœë¤í¬ê¸°ë§Œí¼ í• ë‹¹
+	{
+		case 1: //32px
+			*extract_size = 32;
+			break;
+		case 2: //16px
+			*extract_size = 16;
+			break;
+		case 3: //8px
+			*extract_size = 8;
+			break;
+	}
+	img_extract = IntColorAlloc2(*extract_size, *extract_size);
+	
+	randomY = MIN(768 - 51, randomY);
+	//ëœë¤ ìœ„ì¹˜ì— ì´ë¯¸ì§€ ë½‘ìŒ
+	for (int dy = 0; dy < *extract_size; dy++) {
+		for (int dx = 0; dx < *extract_size; dx++) {
+			img_extract[dy][dx] = img_original[randomY + dy][randomX + dx];
 		}
 	}
 
-	ImageShow("input", img, width, height);
-	ImageShow("È¸ÀüX", img_out1, width, height);
-	ImageShow("È¸ÀüO", img_out2, width, height);
+	//ColorImageShow("output1", img_extract, *extract_size, *extract_size);
+
+	waitKey(0);
+}
+
+
+void ExtractTempleteMatching(int randomX, int randomY, int_rgb** img_original, int_rgb** img_out, int_rgb** img_extract, int extract_size, int height, int width,
+	int_rgb*** block_out_32, int_rgb*** block_out_16, int_rgb*** block_out_8) { //ê·¸ê±°ë¡œ í…œí”Œë¦¿ ë§¤ì¹­
+
+	switch (extract_size)
+	{
+		
+	case 32:
+		Compare_color(randomX, randomY, block_out_32, extract_size, img_original, img_out);
+		break;
+
+	case 16:
+		Compare_color(randomX, randomY, block_out_16, extract_size, img_original, img_out);
+		break;
+
+	case 8:
+		Compare_color(randomX, randomY, block_out_8, extract_size, img_original, img_out);
+		break;
+	}
+
+
+	//ì¤‘ë³µí•˜ëŠ”ì§€ ê²€ì‚¬
 
 }
 
 
+void main() {
+	int bsize32 = 32; int bsize16 = 16; int bsize8 = 8;	
+
+	int height, width;
+	int_rgb** img_original = ReadColorImage("cat4.jpg", &width, &height);//ì›ë˜ ì´ë¯¸ì§€
+	int_rgb** img_out = IntColorAlloc2(width, height);
+	int_rgb** img_extract=0;
+	int_rgb** block_out_32[NUM_T]; int_rgb** block_out_16[NUM_T]; int_rgb** block_out_8[NUM_T];
+	int extract_size = 0;
+	char filename[100];
+	
+	//32, 16, 8px db ë§Œë“¤ê¸°
+	for (int i = 0; i < NUM_T; i++) {
+
+		sprintf_s(filename, "dbs%04d.jpg", i);
+		block_out_32[i] = ReadColorImage(filename, &bsize32, &bsize32);
+		block_out_16[i] = IntColorAlloc2(bsize16, bsize16);
+		block_out_8[i] = IntColorAlloc2(bsize8, bsize8);
+	}
+
+	Reduce_Template(block_out_32, block_out_16, bsize32, bsize16);
+	Reduce_Template(block_out_16, block_out_8 , bsize16, bsize8 );
+
+	srand((unsigned)time(NULL));
+	
+	//ëœë¤ í¬ê¸°, ìœ„ì¹˜ ì„¤ì •
+	int percentage[10] = { 1,1,2,2,2,2,2,3,3,3 }; // 1: 32px, 2:16px, 3:8px ->í™•ë¥  ì •í•´ë†“ê¸°.
+	int randomX = 0; int randomY = 0;
+
+	int count = 0;
+	
+	for (int Y = 50; Y < height; Y+=15) {
+		for (int X = 50; X < width; X+=15) {
+			
+			int i = percentage[rand()%10]; // rand()%10 : 0~9 ë¬´ì‘ìœ„ ìˆ˜ -> percentage ë°°ì—´ì˜ indexë¡œ ë“¤ì–´ê°->í™•ë¥ ê¸°ë°˜
+			
+			randomX = MIN( width-50 ,MAX(X - (rand()%50), 0) ); //x,y ëœë¤ ì¢Œí‘œëŠ” í•´ë‹¹ width~width-50, height~height-50
+			randomY = MIN( height- 50, MAX(Y - (rand()%50), 0) );
+			randomY = MIN(height - 50, randomY);
+
+			//ì¼ë‹¨ ì›ë˜ ì´ë¯¸ì§€ì—ì„œ randomìœ„ì¹˜ì— randomí¬ê¸°ë§Œí¼ ì´ë¯¸ì§€ ë½‘ìŒ
+			ExtractRandom(i, randomX, randomY, img_original, img_out, img_extract, &extract_size);
+			//ê·¸ê±°ë¡œ í…œí”Œë¦¿ ë§¤ì¹­ 
+			ExtractTempleteMatching(randomX, randomY, img_original, img_out, img_extract, extract_size, height, width, block_out_32, block_out_16, block_out_8);		
+		}
+		
+	}
+
+	ColorImageShow("output1", img_out, width, height);
+
+	waitKey(0);
+}
 
 
-
-//0~ 258 :  ¹à±â »çÀÌÁî
+//0~ 258 :  ë°ê¸° ì‚¬ì´ì¦ˆ
 /*
 1024 - 768
 */
