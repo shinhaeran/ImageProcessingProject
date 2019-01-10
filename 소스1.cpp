@@ -293,10 +293,7 @@ void stretching(int a, int b, int fa, int fb, int** img, int** img_out, int widt
 
 }
 
-
-
-
-void main() {
+void prob0919() {
 	int width, height;
 	int **img = ReadImage("Penguins.jpg", &width, &height);
 	int **img_out = IntAlloc2(width, height);
@@ -305,6 +302,219 @@ void main() {
 	stretching(70, 150,100 , 200, img, img_out, width, height);
 	ImageShow("test1", img, width, height);
 }
+/*
+void meanFiltering(int **img,int** img_out,int width,int height) {//가장자리 9개 더해서 평균
+	int sum = 0;
+	for (int y = 0; y < height-1; y++) {
+		for (int x = 0; x < width-1; x++) {
+			if (y == 0 || x == 0) {
+				img_out[y][x] = img[y][x];
+			}
+			else{
+			sum = img[y - 1][x - 1] + img[y-1][x] + img[y - 1][x + 1]+ img[y][x - 1] + img[y][x + 1] + img[y + 1][x - 1] + img[y + 1][x] + img[y + 1][x + 1];
+			img_out[y][x] = sum / 9;
+			img_out[y][x] = IMAX(IMIN(img_out[y][x], 255), 0);
+			}
+
+
+		}
+	}
+	ImageShow("test1", img_out, width, height);
+	ImageShow("test", img, width, height);
+
+}
+*/
+void meanFiltering(int **img, int** img_out, int width, int height,int n) {//nxn
+	int sum = 0;
+	int z = n - 2;//3:1 , 5:2
+	for (int y = z; y < height-z ; y++) {//3: 1~254
+		for (int x =z; x < width-z ; x++) {
+
+			for (int dy = -z; dy < (z + 1); dy++) {//3: -1~1 , 5:-2~2
+				for (int dx = -z; dx < (z + 1); dx++) {
+					if (y == 0 && x == 0) {
+					}
+					else sum += img[y + dy][x + dx];
+				}
+			}
+			
+			img_out[y][x] = sum / (n*n) + 0.5;
+			img_out[y][x] = IMAX(IMIN(img_out[y][x], 255), 0);
+			sum = 0;
+
+		}
+	}
+	ImageShow("test1", img_out, width, height);
+	ImageShow("test", img, width, height);
+
+}
+
+
+void ReadBlock(int x, int y, int n1, int n2, int *block,int** img) {
+	int index = 0;
+	int z = n1 - 2;
+	
+	for (int dy = -z; dy < (z + 1); dy++) {//3: -1~1 , 5:-2~2
+		for (int dx = -z; dx < (z + 1); dx++) {
+			if(y+dy>=0 && x+dy>=0){
+				if (y == 0 && x == 0) {
+				}
+				else block[index++] = img[y+dy][x+dx];
+			}
+		}
+	}
+}
+
+int Sorting(int *block, int n) {//버블정렬
+	int temp = 0;
+	for (int i = 0; i < n ; i++)
+	{
+		for (int j = 0; j < n - i; j++)
+		{
+			if (block[j] < block[j + 1])
+			{
+				temp = block[j];
+				block[j] = block[j + 1];
+				block[j + 1] = temp;
+			}
+		}
+	}
+	return block[n / 2];
+}
+
+void medianFilterNXN(int width, int height, int n1 ,int** img, int** img_out) {
+	
+
+	//meanFiltering(img, img_out, width, height,5);
+	int i = 0;
+	int* block = (int*)malloc(n1 * n1* sizeof(int));
+	for (int y = 0; y < height - ((n1-1)/ 2); y++) {
+		for (int x = 0; x < width - ((n1 - 1) / 2); x++) {//256-4
+			if (x - (n1 - 1) < 0 || y - (n1 - 1) < 0 || x + (n1 - 1) > width - 1 || y + (n1 - 1) > height - 1)
+				img_out[y][x] = img[y][x];
+			else {
+				ReadBlock(x, y, n1, n1, block, img);// 값을 읽어와서  block배열에 저장
+													//printf("%d %d\n", x, y);
+				img_out[y][x] = Sorting(block, n1*n1);//중간값 찾아서 return 값을 block [4]로
+			}
+
+		}
+	}
+
+	ImageShow("test1", img_out, width, height);
+	ImageShow("test", img, width, height);
+
+
+}
+
+
+void prob1004() {
+	int width, height;
+	int **img = ReadImage("LENA256_salt(noise_add).bmp", &width, &height);
+	int **img_out = IntAlloc2(width, height);
+
+	//meanFiltering(img, img_out, width, height,5);
+	medianFilterNXN(width,height,11,img,img_out);
+
+	
+}
+
+
+float** FloatAlloc2(int height, int width)
+
+{
+	float** tmp;  tmp = (float**)calloc(height, sizeof(float*));
+
+	for (int i = 0; i<height; i++)
+
+		tmp[i] = (float*)calloc(width, sizeof(float));
+
+	return(tmp);
+
+}
+
+void FloatFree2(float** image, int height, int width)
+
+{
+
+	for (int i = 0; i<height; i++)
+
+		free(image[i]);
+
+	free(image);
+
+}
+float ReadBlockMasking(int x, int y, int n1, float **fnH, int** img) {
+	int index = 0;
+	int z = (n1 - 1)/2;
+	float sum = 0.0;
+
+	
+	for (int dy = -z; dy <= z; dy++) {//3: -1~1 , 5:-2~2
+		for (int dx = -z; dx <= z; dx++) {
+
+			if (y + dy >= 0 && x + dy >= 0) {
+				if (y == 0 && x == 0) {
+				}
+				else
+					sum += img[y+dy][x+dx] * fnH[dy+z][dx+z];
+			}
+		}
+	}
+	  
+	return sum;
+}
+
+
+
+void masking(int **img, int **img_out, int height, int width,int n) {
+	float **fnH = FloatAlloc2(n, n);
+
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			fnH[i][j] = (float)1 / (n*n);
+		}
+	}
+
+	float sum = 0.0;
+
+	
+	for (int y = 0; y < height - ((n - 1) / 2); y++) {
+		for (int x = 0; x < width - ((n - 1) / 2); x++) {//256-4
+			if (x - (n - 1) < 0 || y - (n - 1) < 0 || x + (n - 1) > width - 1 || y + (n - 1) > height - 1)
+				img_out[y][x] = img[y][x];
+			else {
+				sum = ReadBlockMasking(x, y, n, fnH, img);
+				img_out[y][x]= (int)sum;
+			}
+
+		}
+	}
+	//("test1", img_out, width, height);
+	//ImageShow("test", img, width, height);
+
+}
+
+
+//low-pass filter:변화가 많은걸 지움-> 사진이 뭉개짐
+//high:변화가 적은걸 지움->
+void main() { //합성곱, h:n*n block에 1/3, -> h랑 img block이랑 각 인덱스끼리 곱함->"Masking"
+	int width, height;
+	int **img = ReadImage("LENA256_salt(noise_add).bmp", &width, &height);
+	int **img_out1 = IntAlloc2(width, height);
+	int **img_out2= IntAlloc2(width, height);
+
+	masking(img, img_out1, height, width, 3);
+	meanFiltering(img, img_out2, width, height, 3);
+	ImageShow("test", img, width, height);
+	ImageShow("test1", img_out1, width, height);
+	ImageShow("test2", img_out2, width, height);
+
+}
+
+
+
 //0~ 258 :  밝기 사이즈
 /*
 1024 - 768
