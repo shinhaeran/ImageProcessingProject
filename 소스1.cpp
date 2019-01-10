@@ -95,7 +95,7 @@ int_rgb** ReadColorImage(char* name, int* width, int* height)
 {
 	Mat img = imread(name, IMREAD_COLOR);
 	int_rgb** image = (int_rgb**)IntColorAlloc2(img.cols, img.rows);
-
+	
 	*width = img.cols;
 	*height = img.rows;
 
@@ -475,12 +475,8 @@ void masking1(int **img, int **img_out, int height, int width,int n) { // 가로 -
 		a = -1;
 	}
 
-	
-
-
 	float sum1 = 0.0;
 	float sum2 = 0.0;
-
 	
 	for (int y = 0; y < height - ((n - 1) / 2); y++) {
 		for (int x = 0; x < width - ((n - 1) / 2); x++) {//256-4
@@ -825,7 +821,7 @@ int ReadBlock2(int x, int y, int n1, int n2, int *block, int** img,int width,int
 	
 	//int z = n1 - 2;
 	int aa = 0;
-
+	int result = 0;
 	int indexB = 0;
 	for (int dy = 0; dy < n1; dy++) {//3: -1~1 , 5:-2~2
 		for (int dx = 0; dx < n1; dx++) {
@@ -833,38 +829,50 @@ int ReadBlock2(int x, int y, int n1, int n2, int *block, int** img,int width,int
 			if (y + dy >= 0 && x + dx >= 0&& y + dy < height && x + dx < width) {
 				
 				block[indexB++] = img[y + dy][x + dx];
+				result += img[y + dy][x + dx];
 			}
 			else return -1;
 		}
 	}
 
-	return 0;
+	return result;
 }
 
-void TemplaeMatching(int **block,int bSize,int **img,int height, int width,int* x_out,int* y_out,int* terror) {
+
+void drawBox(int **img,int x_out,int y_out,int width,int height) {
+	for (int dy = 0; dy < 16; dy++) {
+		for (int dx = 0; dx < 16; dx++) {
+			//img[y_out + dy][x_out + dx]=0;
+			if (dy == 0 || dx == 0 || dy == 15 || dx == 15)
+				img[y_out + dy][x_out + dx] = 254;
+		}
+	}
+	ImageShow("input", img, width, height);
+}
+void TemplaeMatching(int **block, int bSize, int **img, int height, int width, int* x_out, int* y_out, int* terror) {
 
 	int* imgBlock = (int*)malloc(bSize * bSize * sizeof(int));
-	
+
 	int a = 0;
 
 
 	//ReadBlock()
-	for (int y = 0; y < height; y=y+32) {
-		for (int x = 0; x < width; x=x+32) {
+	for (int y = 0; y < height; y += 32) {
+		for (int x = 0; x < width; x += 32) {
 
-			int result = ReadBlock2(x, y, bSize, bSize, imgBlock, img, width, height);
+			int result = ReadBlock2(x, y, bSize, bSize, imgBlock, img, width, height); //result: |A|
 			int index = 0;
 			int temp = 0;
 
-			if (result == 0) {
+			if (result != -1) {
 				for (int dy = 0; dy < bSize; dy++) {
 					for (int dx = 0; dx < bSize; dx++) {
-						temp = temp+ abs(imgBlock[index++] - block[dy][dx]);//둘이 뺀거를 절대치 취함
+						temp += abs(imgBlock[index++] - block[dy][dx]);//둘이 뺀거를 절대치 취함
 
 					}
 				}
 
-				if (a==0)
+				if (a == 0)
 					*terror = temp;
 
 				if (temp < *terror) {
@@ -876,17 +884,7 @@ void TemplaeMatching(int **block,int bSize,int **img,int height, int width,int* 
 			a++;
 		}
 	}
-	
-}
-void drawBox(int **img,int x_out,int y_out,int width,int height) {
-	for (int dy = 0; dy < 16; dy++) {
-		for (int dx = 0; dx < 16; dx++) {
-			//img[y_out + dy][x_out + dx]=0;
-			if (dy == 0 || dx == 0 || dy == 15 || dx == 15)
-				img[y_out + dy][x_out + dx] = 254;
-		}
-	}
-	ImageShow("input", img, width, height);
+
 }
 void prob1113() {
 	int width, height;
@@ -1015,36 +1013,7 @@ void drawBlock(int **img,int **block, int x_out, int y_out) {
 }
 
 
-void prob() {
-	int **block[510];
-	int width, height;
-	int widthB, heightB;
-	//block = (int**)malloc(510 * sizeof(int**));
-	char filename[100];
-	for (int i = 0; i < 510; i++) {
-		sprintf(filename, "dbs%04d.jpg", i);
-		block[i] = ReadImage(filename,&widthB,&heightB);
-	}
-	int** img = ReadImage("koala.bmp", &width, &height);
 
-
-	for(int i=0;i<510;i++){
-		int x_out = 0 ;
-		int y_out= 0;
-		int terror=0;
-		
-		TemplaeMatching(block[i], 32, img, height, width, &x_out, &y_out, &terror);
-
-		int index = 0;
-
-		drawBlock(img, block[i], x_out, y_out);
-		
-
-	}
-	ImageShow("aa", img, width, height);
-
-	
-}
 void DrawSquare(int **block, int x1, int x2, int y1, int y2, int height, int  width) { //사각형 그리는 함수
 
 	for (int i = 0; i < height; i++) {
@@ -1098,7 +1067,6 @@ void FindMaxMin(int **block, int *x1, int *x2, int *y1, int *y2,int height, int 
 	*x2 = tempX2;
 	*y1 = tempY1;
 	*y2 = tempY2;
-	
 }
 
 void DrawLine(int **block, int x1, int x2,int y1, int y2, int height, int  width) {
@@ -1206,7 +1174,7 @@ void FindMaxMin2(int **block, int *x1, int *x2, int *y1, int *y2, int height, in
 
 
 
-void main() {//실기시험
+void exam() {//실기시험
 	
 	int** block;
 	int width, height;
@@ -1250,13 +1218,291 @@ void main() {//실기시험
 	//	ImageShow("aa", block[i], width, height);
 	//}
 
+}
 
 
+void TemplaeMatching2(int **block, int bSize, int **img, int height, int width, int* x_out, int* y_out, int* terror) {
+
+	int* imgBlock = (int*)malloc(bSize * bSize * sizeof(int));
+	int a = 0;
 
 
+	//ReadBlock()
+	for (int y = 0; y < height; y += 32) {
+		for (int x = 0; x < width; x += 32) {
+
+			int result = ReadBlock2(x, y, bSize, bSize, imgBlock, img, width, height); //result: |A|
+			int index = 0;
+			int temp = 0;
+
+			if (result != -1) {
+				for (int dy = 0; dy < bSize; dy++) {
+					for (int dx = 0; dx < bSize; dx++) {
+						temp += abs(imgBlock[index++] - block[dy][dx]);//둘이 뺀거를 절대치 취함
+					}
+				}
+
+				if (a == 0)
+					*terror = temp;
+
+				if (temp < *terror) {
+					*x_out = x;
+					*y_out = y;
+					*terror = temp;
+				}
+			}
+			a++;
+		}
+	}
+
+}
+void main_() {
+	int **block[510];
+	int width, height;
+	int widthB, heightB;
+	
+	char filename[100];
+
+	for (int i = 0; i < 510; i++) {
+		sprintf(filename, "dbs%04d.jpg", i);
+		block[i] = ReadImage(filename, &widthB, &heightB);
+	}
+	int** img = ReadImage("koala.bmp", &width, &height);
+
+	//int blockTable[510] = { 0 }; //blockTable 미리 만들어놓기
+	int indexH[24] = { 0 };
+
+	for (int i = 0; i<510; i++) {
+		int x_out = 0;
+		int y_out = 0;
+		int terror = 0;
+		
+		TemplaeMatching2(block[i], 32, img, height, width, &x_out, &y_out, &terror);
+		indexH[y_out / 32] = 1;
+		
+
+		drawBlock(img, block[i], x_out, y_out);
+
+
+	}
+	ImageShow("aa", img, width, height);
+
+
+}
+
+int ComputeError(int x, int y, int** img, int** block, int bsize,int height) {
+	int error = 0;
+	if(y!=height){
+		for (int Y = 0; Y < bsize; Y++) {
+			for (int X = 0; X < bsize; X++) {
+				error += abs(block[Y][X] - img[Y + y][X + x]);
+			}
+		}
+	}
+	return error;
+}
+void Compare(int x, int y, int** block_out[], int bsize, int** img, int** img_out) {
+	int err, index_min = 0, err_min = 1000000;
+
+	for (int i = 0; i < 510; i++) {
+		err = ComputeError(x, y, img, block_out[i], bsize,768); // error를 일단 찾아야 겠쥬
+
+		if (err < err_min) {
+			err_min = err;
+			index_min = i;
+		}
+	}
+
+	for (int Y = 0; Y < bsize; Y++) {
+		for (int X = 0; X < bsize; X++) {
+			img_out[Y + y][X + x] = block_out[index_min][Y][X];
+		}
+	}
+}
+void MultiTemplate(int height, int width, int** img, int** img_out, int** block_out[], int bsize) { // block_out의 블럭들을 bsize만큼 크기로 넣어줌
+
+	for (int y = 0; y < height; y += 32) {
+		for (int x = 0; x < width; x += 32) {
+			Compare(x, y, block_out, bsize, img, img_out);//error_min을 찾아야 거기에 넣어야겠쥬
+		}
+	}
+}
+
+
+void main() {
+	int height, width, h_height, h_width;
+	int** img = ReadImage("koala.bmp", &width, &height);
+	int** img_out1 = IntAlloc2(width, height);//회전X
+	int** img_out2 = IntAlloc2(width, height);//회전O
+	char filename[100];
+	int bsize = 32;
+	int** block[510];
+	int** block_out[510*5];
+	
+	for (int i = 0; i < 510*5; i++) {
+		if (i < 510) {
+			sprintf(filename, "dbs%04d.jpg", i);
+			block[i] = ReadImage(filename, &h_width, &h_height);
+		}
+		block_out[i] = IntAlloc2(h_width, h_height);
+	}
+
+	MultiTemplate(height, width, img, img_out1, block, bsize);
+	
+	for (int y = 0; y < height; y += 32) {
+		for (int x = 0; x < width; x += 32) {
+			int err, index_min = 0, err_min = 1000000;
+
+			for (int i = 0; i < 510*5; i++) {
+				if (i < 510) {
+					block_out[i] = block[i];
+				}
+				if (i >= 510 && i < 510*2) {
+					ReadBlock_img1(block_out[i], block[i - 510], bsize, bsize);
+				}
+				if (i >= 510 * 2 && i < 510*3) {
+					ReadBlock_img2(block_out[i], block[i - 510*2], bsize, bsize);
+				}
+				if (i >= 510 * 3 && i < 510*4) {
+					ReadBlock_img3(block_out[i], block[i - 510 * 3], bsize, bsize);
+				}
+				if (i >= 510 * 4 && i < 510*5) {
+					ReadBlock_img4(block_out[i], block[i - 510 * 4], bsize, bsize);
+				}
+				err = ComputeError(x, y, img, block_out[i], bsize, height); // 해당 블럭의 찾기
+
+				if (err < err_min) {//min - out 비교
+					err_min = err;
+					index_min = i;
+				}
+			}
+
+			for (int Y = 0; Y < bsize; Y++) {
+				for (int X = 0; X < bsize; X++) {
+					img_out2[Y + y][X + x] = block_out[index_min][Y][X];
+				}
+			}
+		}
+	}
+
+	ImageShow("input", img, width, height);
+	ImageShow("회전X", img_out1, width, height);
+	ImageShow("회전O", img_out2, width, height);
+
+}
+
+struct IMG
+{
+	int **img;
+	int height;
+	int width;
+};
+
+
+void setStruct(int **img, int height, int width, IMG *A)
+{
+	
+	A->height = height;
+	A->width = width;
+	A->img = (int**)IntAlloc2(width, height);
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			A->img[y][x] = img[y][x];
+		}
+	}
+}
+void Geo1_Struct(IMG *A, IMG *B,int bsize) { // +90회전
+	for (int y = 0; y < bsize; y++) {
+		for (int x = 0; x < bsize; x++) {
+			//block_out[x][bsize - 1 - y] = block_in[y][x];
+			B->img[x][bsize - 1 - y] = A->img[y][x];
+		}
+	}
+}
+
+
+void ImageShow222(char* winname, IMG A)
+{
+	Mat img(A.height, A.width, CV_8UC1);
+	for (int i = 0; i<A.height; i++)
+		for (int j = 0; j<A.width; j++)
+			img.at<unsigned char>(i, j) = (unsigned char)A.img[i][j];
+	imshow(winname, img);
+	waitKey(0);
+}
+
+struct CPX
+{
+	int re;
+	int im;
+};
+
+CPX MulCPX(CPX *A, CPX *B) {
+	CPX C;
+	C.re = A->re* B->re - (A->im* B->im);
+	C.im = A->re*B->im + A->im + B->re;
+	return C;
+}
+void printCPX(CPX A) {
+	printf("%d +j %d", A.re, A.im);
+}
+void Test_1204_1()
+{
+	int width, height;
+	int** img = ReadImage("koala.bmp", &width, &height);
+
+	IMG A;
+	A.img = 0;
+	
+	IMG B;
+	B.img = 0;
+
+	setStruct(img, height, width, &A);
+	setStruct(img, height, width, &B);
+
+	Geo1_Struct(&A, &B, 768);
+	ImageShow222("B.img",B);
+
+	/*CPX A, B, C;
+	A.re = 1.0; A.im = 3.0;
+	B.re = 2.0; B.im = -2.0;
+
+	C = MulCPX(&A, &B);
+	printCPX(C);*/
 	
 
 }
+
+void Color2Gray(int_rgb** img_color, int** img_gray, int height, int width) {
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++)
+			img_gray[y][x] = (img_color[y][x].r + img_color[y][x].g + img_color[y][x].b) / 3;
+	}
+}
+
+void prob1204() {
+	int height, width;
+	
+	int_rgb** img_color = ReadColorImage("Koala.jpg", &width, &height);
+	
+
+	int** img_bw = IntAlloc2(width, height);
+
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			img_bw[y][x] = img_color[y][x].g;
+		}
+	}
+	
+	ImageShow("green", img_bw, width, height);
+	ColorImageShow("colorKoala", img_color, width, height);
+	waitKey(0);
+}
+
+
+
+
 
 
 
@@ -1265,4 +1511,6 @@ void main() {//실기시험
 /*
 1024 - 768
 */
+
+
 
